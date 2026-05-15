@@ -1,0 +1,58 @@
+---
+import "../styles/global.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Astro</title>
+  </head>
+  <body>
+    <h1 class="">Astro</h1>
+  </body>
+  <script>
+    import $ from "jquery";
+
+    import { commonCountries } from "../constants/countries";
+
+    // import {  } from "../types/location"
+    // import {  } from "../types/weather"
+
+    // > Constants
+    const PLACEKIT_API_URL = "https://api.placekit.co/search";
+
+    /**
+     * @function searchPlaces
+     * @param query - Input text value that the user types in the search field
+     * @description This function gets the location results from the PlaceKit API based on the user's query.
+     * @returns Array<object> An array of location results matching the query, filtered by common countries and types
+     */
+    async function searchPlaces(query: string) {
+      const response = await fetch(PLACEKIT_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-placekit-api-key": `${import.meta.env.PUBLIC_PLACEKIT_API_KEY}`,
+        },
+        body: JSON.stringify({
+          query: query,
+          countries: commonCountries,
+          language: "en",
+          types: ["street", "city"],
+          maxResults: 5,
+        }),
+      });
+      const data = await response.json();
+      return data.results;
+    }
+
+    // ! USAGE TEST of the searchPlaces function
+    const query = "Egypt";
+    const locationResults = await searchPlaces(query);
+    console.log(locationResults);
+  </script>
+</html>
