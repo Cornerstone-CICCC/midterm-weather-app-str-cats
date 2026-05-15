@@ -1,0 +1,30 @@
+import { commonCountries } from "../constants/countries";
+import type { LocationData } from "../types/location";
+
+const PLACEKIT_API_URL = "https://api.placekit.co/search";
+
+/**
+ * @function searchPlaces
+ * @param query - Input text value that the user types in the search field
+ * @description This function gets the location results from the PlaceKit API based on the user's query.
+ * @returns Array<LocationData[]> An array of location results matching the query, filtered by common countries and types
+ */
+export async function searchPlaces(query: string): Promise<LocationData[]> {
+  const response = await fetch(PLACEKIT_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-placekit-api-key": import.meta.env.PUBLIC_PLACEKIT_API_KEY,
+    },
+    body: JSON.stringify({
+      query,
+      countries: commonCountries,
+      language: "en",
+      types: ["street", "city"],
+      maxResults: 5,
+    }),
+  });
+
+  const data = await response.json();
+  return data.results;
+}
