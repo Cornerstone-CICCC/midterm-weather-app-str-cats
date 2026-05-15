@@ -19,11 +19,44 @@ import "../styles/global.css";
 
     import { commonCountries } from "../constants/countries";
 
-    import type { LocationData } from "../types/location";
+    import type { LocationData, GeolocationData } from "../types/location";
     import type { WeatherData, HourlyWeather } from "../types/weather";
 
     // > Constants
     const PLACEKIT_API_URL = "https://api.placekit.co/search";
+
+    let userLocation: GeolocationData;
+    let weatherInfo: WeatherData;
+
+    // ---> Location Functionality <---
+    /**
+     * @function getGeolocation
+     * @description This function attempts to get the user's current geolocation using the browser's Geolocation API. 
+     * If successful, it resolves with an object containing the latitude and longitude. 
+     * If geolocation is not supported or if there is an error (e.g., user denies permission), it rejects with an error.
+     */
+    function getGeolocation(): Promise<GeolocationData> {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error("Geolocation is not supported"));
+          // TODO set Fallback to vancouver's coordinates
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          ({ coords }) => {
+            resolve({
+              lat: coords.latitude,
+              lng: coords.longitude,
+            });
+          },
+          (error: GeolocationPositionError) => {
+            reject(error);
+          },
+          { timeout: 10000},
+        );
+      });
+    }
 
     /**
      * @function searchPlaces
@@ -64,15 +97,18 @@ import "../styles/global.css";
     );
 
     /**
-     * 
+     *
      * @param lng - Longitude of the location for which to fetch weather information
      * @param lat - Latitude of the location for which to fetch weather information
-     * @description This function fetches weather information from the Open-Meteo API based on the provided 
+     * @description This function fetches weather information from the Open-Meteo API based on the provided
      * longitude and latitude.
-     * @returns <WeatherData> An object containing current temperature, daily weather data, and hourly weather 
+     * @returns <WeatherData> An object containing current temperature, daily weather data, and hourly weather
      * data for every 3 hours of the next 5 days.
      */
-    async function getWeatherInfo(lng: number, lat: number): Promise<WeatherData> {
+    async function getWeatherInfo(
+      lng: number,
+      lat: number,
+    ): Promise<WeatherData> {
       const response = await fetch(
         `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m&hourly=temperature_2m,rain,snowfall&daily=sunrise,sunset&timezone=auto&forecast_days=5`,
       );
@@ -82,19 +118,47 @@ import "../styles/global.css";
     }
 
     // ! USAGE TEST of the getWeatherInfo function
-    const weatherInfo = await getWeatherInfo(31.2357, 30.0444);
+    weatherInfo = await getWeatherInfo(31.2357, 30.0444);
     console.warn("Weather Info (formatted): \n", {
       currentTemperature: weatherInfo.current.temperature_2m,
       daily: weatherInfo.daily,
       // ? Hourly data for every 3 hours as requested for member 5
       hourly: weatherInfo.hourly.time
-        .map((time: string, index: number): HourlyWeather => ({
-          time,
-          temperature: weatherInfo.hourly.temperature_2m[index],
-          rain: weatherInfo.hourly.rain[index],
-          snowfall: weatherInfo.hourly.snowfall[index],
-        }))
+        .map(
+          (time: string, index: number): HourlyWeather => ({
+            time,
+            temperature: weatherInfo.hourly.temperature_2m[index],
+            rain: weatherInfo.hourly.rain[index],
+            snowfall: weatherInfo.hourly.snowfall[index],
+          }),
+        )
         .filter((_: HourlyWeather, index: number) => index % 3 === 0),
     });
+
+    // ----
+    /**
+     * @function initApp
+     * @description This function initializes the application by first attempting to get the user's geolocation.
+     * If successful, it uses the obtained coordinates to fetch weather information. If geolocation fails (e.g., due to user denial or technical issues), 
+     * it falls back to using Vancouver's coordinates to fetch weather information.
+     */
+    async function initApp() {
+      try {
+        userLocation = await getGeolocation();
+
+        weatherInfo = await getWeatherInfo(userLocation.lng, userLocation.lat);
+        console.log(weatherInfo);
+      } catch (error) {
+        userLocation = { // Vancouver's coordinates as fallback
+          lat: 49.2827,
+          lng: -123.1207,
+        };
+        console.error("Error getting geolocation, using fallback location:", error);
+        weatherInfo = await getWeatherInfo(userLocation.lng, userLocation.lat);
+        console.log(weatherInfo);
+      }
+    }
+
+    initApp();
   </script>
 </html>
