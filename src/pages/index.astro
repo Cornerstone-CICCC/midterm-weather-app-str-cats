@@ -65,7 +65,7 @@ import "../styles/global.css";
         userLocation = await getGeolocation();
 
         weatherInfo = await getWeatherInfo(userLocation.lng, userLocation.lat);
-        console.log(weatherInfo);
+        // console.log(weatherInfo)
       } catch (error) {
         userLocation = {
           // Vancouver's coordinates as fallback

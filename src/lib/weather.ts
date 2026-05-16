@@ -14,8 +14,12 @@ export async function getWeatherInfo(
   lat: number,
 ): Promise<WeatherData> {
   const response = await fetch(
-    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m&hourly=temperature_2m,rain,snowfall&daily=sunrise,sunset&timezone=auto&forecast_days=5`,
+    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,weather_code&hourly=temperature_2m,rain,snowfall,weather_code&daily=sunrise,sunset&timezone=auto&forecast_days=5`,
   );
+
+  if (!response.ok) {
+    throw new Error(`Weather API error: ${response.status}`);
+  }
 
   return response.json();
 }
