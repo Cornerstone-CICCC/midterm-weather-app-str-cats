@@ -13,6 +13,7 @@ export function mapHourly(hourly: WeatherData["hourly"]) {
       temperature: hourly.temperature_2m[index],
       rain: hourly.rain[index],
       snowfall: hourly.snowfall[index],
+      weatherCode: hourly.weather_code[index],
     }))
     .filter((_, index) => index % 3 === 0);
 }

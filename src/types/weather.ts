@@ -6,34 +6,37 @@ export type WeatherData = {
   timezone: string;
   timezone_abbreviation: string;
   elevation: number;
-  
+
   current_units: CurrentUnits;
   current: CurrentData;
-  
+
   hourly_units: HourlyUnits;
   hourly: HourlyData;
-  
+
   daily_units: DailyUnits;
   daily: DailyData;
-}
+};
 
 export type HourlyWeather = {
-	time: string;
-	temperature: number;
-	rain: number;
-	snowfall: number;
-}
+  time: string;
+  temperature: number;
+  rain: number;
+  snowfall: number;
+  weather_code: number;
+};
 
 interface CurrentUnits {
   time: string;
   interval: string;
   temperature_2m: string;
+  weather_code: string;
 }
 
 interface CurrentData {
   time: string;
   interval: number;
   temperature_2m: number;
+  weather_code: number;
 }
 
 interface HourlyUnits {
@@ -41,6 +44,7 @@ interface HourlyUnits {
   temperature_2m: string;
   rain: string;
   snowfall: string;
+  weather_code: string;
 }
 
 interface HourlyData {
@@ -48,6 +52,7 @@ interface HourlyData {
   temperature_2m: number[];
   rain: number[];
   snowfall: number[];
+  weather_code: number[];
 }
 
 interface DailyUnits {
