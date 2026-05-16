@@ -2,6 +2,7 @@ import type { WeatherData } from "../types/weather";
 
 export const FALLBACK_CITY = {
   displayName: "Vancouver",
+  subtitle: "British Columbia, Canada",
   latitude: 49.2827,
   longitude: -123.1207,
 } as const;

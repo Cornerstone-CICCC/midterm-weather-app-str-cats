@@ -8,6 +8,11 @@ import {
   removeFavoriteById,
 } from "./favorites";
 import { getGeolocation } from "./geolocation";
+import {
+  formatLocationSubtitle,
+  getCityDisplayName,
+  locationFromPlaceKit,
+} from "./location-format";
 import { searchPlaces } from "./placekit";
 import {
   FALLBACK_CITY,
@@ -21,6 +26,7 @@ import type { WeatherData } from "../types/weather";
 
 type SelectedCity = {
   displayName: string;
+  subtitle: string;
   latitude: number;
   longitude: number;
 };
@@ -39,6 +45,7 @@ async function resolveInitialCity(): Promise<void> {
     const loc = await getGeolocation();
     selectedCity = {
       displayName: GEO_LOCATION_LABEL,
+      subtitle: "",
       latitude: loc.lat,
       longitude: loc.lng,
     };
@@ -57,8 +64,20 @@ function renderFavoriteDropdown(): void {
   const $sel = $("#favorite-cities");
   $sel.empty();
   $("<option>", { value: "", text: "Favorite cities" }).appendTo($sel);
-  for (const f of favoritesCache) {
-    $("<option>", { value: f.id, text: f.displayName }).appendTo($sel);
+  for (const fav of favoritesCache) {
+    const label = fav.subtitle
+      ? `${fav.displayName} — ${fav.subtitle}`
+      : fav.displayName;
+    $("<option>", { value: fav.id, text: label }).appendTo($sel);
+  }
+}
+
+function renderLocationSubtitle(): void {
+  const $sub = $("#hero-location-subtitle");
+  if (selectedCity.subtitle) {
+    $sub.text(selectedCity.subtitle).removeClass("hidden");
+  } else {
+    $sub.text("").addClass("hidden");
   }
 }
 
@@ -86,8 +105,9 @@ function refreshStarState(): void {
  * @param {string} cityLabel - The label of the city to render.
  * @returns {void}
  */
-function renderWeatherCard(weather: WeatherData, cityLabel: string): void {
-  $("#hero-city-name").text(cityLabel);
+function renderWeatherCard(weather: WeatherData): void {
+  $("#hero-city-name").text(selectedCity.displayName);
+  renderLocationSubtitle();
 
   const unit = weather.current_units.temperature_2m;
   $("#hero-temp-main").text(`${weather.current.temperature_2m}${unit}`);
@@ -121,7 +141,7 @@ async function loadWeatherForSelected(): Promise<void> {
       selectedCity.longitude,
       selectedCity.latitude,
     );
-    renderWeatherCard(weather, selectedCity.displayName);
+    renderWeatherCard(weather);
     refreshStarState();
   } catch (e) {
     const message = e instanceof Error ? e.message : "Could not load weather.";
@@ -130,6 +150,7 @@ async function loadWeatherForSelected(): Promise<void> {
     $("#hero-temp-range").text("—");
     $("#hero-rain-value").text("—");
     $("#hero-snow-value").text("—");
+    renderLocationSubtitle();
     refreshStarState();
   }
 }
@@ -164,13 +185,17 @@ function showSearchResults(locations: LocationData[]): void {
         "w-full px-4 py-2.5 text-left text-sm text-violet-950 hover:bg-violet-50 focus:bg-violet-50 focus:outline-none",
       role: "option",
     });
-    $btn.text(loc.name);
+    const title = getCityDisplayName(loc);
+    const subtitle = formatLocationSubtitle(loc);
+    $("<span>", { class: "block font-medium", text: title }).appendTo($btn);
+    if (subtitle) {
+      $("<span>", {
+        class: "block text-xs text-violet-500 mt-0.5",
+        text: subtitle,
+      }).appendTo($btn);
+    }
     $btn.on("click", () => {
-      selectedCity = {
-        displayName: loc.name,
-        latitude: loc.lat,
-        longitude: loc.lng,
-      };
+      selectedCity = locationFromPlaceKit(loc);
       $("#search-city-input").val("");
       hideSearchResults();
       void loadWeatherForSelected();
@@ -214,6 +239,7 @@ function bindFavoriteToggle(): void {
     } else {
       addFavorite({
         displayName: selectedCity.displayName,
+        subtitle: selectedCity.subtitle || undefined,
         latitude: selectedCity.latitude,
         longitude: selectedCity.longitude,
       });
@@ -238,6 +264,7 @@ function bindFavoriteSelect(): void {
     if (!fav) return;
     selectedCity = {
       displayName: fav.displayName,
+      subtitle: fav.subtitle ?? "",
       latitude: fav.latitude,
       longitude: fav.longitude,
     };

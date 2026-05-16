@@ -72,6 +72,7 @@ export function addFavorite(
   const next: FavoriteCity = {
     id,
     displayName: city.displayName,
+    subtitle: city.subtitle,
     latitude: city.latitude,
     longitude: city.longitude,
   };
