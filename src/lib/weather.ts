@@ -17,5 +17,8 @@ export async function getWeatherInfo(
     `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m&hourly=temperature_2m,rain,snowfall&daily=sunrise,sunset&timezone=auto&forecast_days=5`,
   );
 
-  return response.json();
+  if (!response.ok) {
+    throw new Error(`Weather request failed (${response.status})`);
+  }
+  return response.json() as Promise<WeatherData>;
 }

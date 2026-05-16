@@ -1,5 +1,9 @@
 ---
 import "../styles/global.css";
+import TopBar from "../components/TopBar.astro";
+import CurrentWeatherCard from "../components/CurrentWeatherCard.astro";
+import FavCitiesDropdown from "../components/FavCitiesDropdown.astro";
+import SearchBar from "../components/SearchBar.astro";
 ---
 
 <html lang="en">
@@ -9,78 +13,25 @@ import "../styles/global.css";
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
+    <title>StrCats Weather</title>
   </head>
-  <body>
-    <h1 class="">Astro</h1>
-  </body>
-  <script>
-    import $ from "jquery";
+  <body class="min-h-screen bg-violet-50/80 text-violet-950 antialiased">
+    <TopBar />
+    <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-stretch justify-between">
+        <FavCitiesDropdown />
+        <SearchBar />
+      </div>
+      <CurrentWeatherCard />
+    </main>
+    <script>
+      import $ from "jquery";
 
-    // > Types import
-    import type { LocationData, GeolocationData } from "../types/location";
-    import type { WeatherData, HourlyWeather } from "../types/weather";
+      import { initWeatherApp } from "../lib/init-weather-app";
 
-    // > Library functions import
-    import { getGeolocation } from "../lib/geolocation";
-    import { searchPlaces } from "../lib/placekit";
-    import { getWeatherInfo } from "../lib/weather";
-    import { mapHourly } from "../lib/weather-mapper";
-
-    let userLocation: GeolocationData;
-    let weatherInfo: WeatherData;
-
-    // ! USAGE TEST of the searchPlaces function
-    const query = "Egypt";
-    const locationResults = await searchPlaces(query);
-    console.warn(
-      "Location Info (formatted): \n",
-      locationResults.map((result: LocationData) => ({
-        name: result.name,
-        country: result.country,
-        latitude: result.lat,
-        longitude: result.lat,
-      })),
-    );
-
-    // ! USAGE TEST of the getWeatherInfo function
-      weatherInfo = await getWeatherInfo(31.2357, 30.0444);
-      console.warn("Weather Info (formatted): \n", {
-        currentTemperature: weatherInfo.current.temperature_2m,
-        daily: weatherInfo.daily,
-        // ? Hourly data for every 3 hours as requested for member 5
-        hourly: mapHourly(weatherInfo.hourly)
-          
+      $(async () => {
+        await initWeatherApp();
       });
-
-    // ----
-    /**
-     * @function initApp
-     * @description This function initializes the application by first attempting to get the user's geolocation.
-     * If successful, it uses the obtained coordinates to fetch weather information. If geolocation fails (e.g., due to user denial or technical issues),
-     * it falls back to using Vancouver's coordinates to fetch weather information.
-     */
-    async function initApp() {
-      try {
-        userLocation = await getGeolocation();
-
-        weatherInfo = await getWeatherInfo(userLocation.lng, userLocation.lat);
-        console.log(weatherInfo);
-      } catch (error) {
-        userLocation = {
-          // Vancouver's coordinates as fallback
-          lat: 49.2827,
-          lng: -123.1207,
-        };
-        console.error(
-          "Error getting geolocation, using fallback location:",
-          error,
-        );
-        weatherInfo = await getWeatherInfo(userLocation.lng, userLocation.lat);
-        console.log(weatherInfo);
-      }
-    }
-
-    initApp();
-  </script>
+    </script>
+  </body>
 </html>
