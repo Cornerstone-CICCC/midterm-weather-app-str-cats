@@ -18,8 +18,7 @@ export async function getWeatherInfo(
   );
 
   if (!response.ok) {
-    throw new Error(`Weather API error: ${response.status}`);
+    throw new Error(`Weather request failed (${response.status})`);
   }
-
-  return response.json();
+  return response.json() as Promise<WeatherData>;
 }
