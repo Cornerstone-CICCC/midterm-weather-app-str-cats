@@ -1,0 +1,56 @@
+---
+import type { WeatherData } from '../types/weather';
+
+
+interface Props {
+  cityName: string;
+  weatherInfo: WeatherData;
+}
+
+const { cityName, weatherInfo } = Astro.props;
+const current = weatherInfo.current;
+const units = weatherInfo.current_units;
+
+
+const formattedTime = new Date(current.time).toLocaleTimeString([], { 
+  hour: '2-digit', 
+  minute: '2-digit' 
+});
+---
+
+<section class="current-weather-card">
+  <div class="card-header">
+    <h2 class="city-name">{cityName}</h2>
+    
+    <button class="favorite-btn" aria-label="Add to favorites">
+      favorite
+    </button>
+  </div>
+
+  <div class="weather-main">
+    <div class="temperature-display">
+      <span class="temperature-value">{current.temperature_2m}</span>
+      <span class="temperature-unit">{units.temperature_2m}</span>
+    </div>
+    
+    <div class="weather-info-box">
+      <span class="weather-condition">Condition Code: {current.weather_code}</span>
+      <span class="local-time">{formattedTime} ({weatherInfo.timezone_abbreviation})</span>
+    </div>
+  </div>
+
+  <div class="weather-details">
+    <div class="detail-item">
+      <span class="detail-label">Wind</span>
+      <span class="detail-value">-- km/h</span> 
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Rain</span>
+      <span class="detail-value">-- mm</span>
+    </div>
+    <div class="detail-item">
+      <span class="detail-label">Humidity</span>
+      <span class="detail-value">-- %</span>
+    </div>
+  </div>
+</section>
