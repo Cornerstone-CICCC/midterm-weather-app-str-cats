@@ -9,76 +9,112 @@ import "../styles/global.css";
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
+    <title>Astro Weather - Vancouver</title>
   </head>
   <body>
-    <h1 class="">Astro</h1>
+    <h1 class="">Weather Forecast</h1>
+    
+    <div id="daily-forecast-container"></div>
+    <div id="hourly-range-container"></div>
   </body>
+
   <script>
     import $ from "jquery";
-
-    // > Types import
     import type { LocationData, GeolocationData } from "../types/location";
-    import type { WeatherData, HourlyWeather } from "../types/weather";
-
-    // > Library functions import
+    import type { WeatherData, DailyForecast, HourlyForecast } from "../types/weather";
     import { getGeolocation } from "../lib/geolocation";
     import { searchPlaces } from "../lib/placekit";
     import { getWeatherInfo } from "../lib/weather";
-    import { mapHourly } from "../lib/weather-mapper";
+    import { mapHourly, mapDailyForecast, mapHourlyRange } from "../lib/weather-mapper";
 
     let userLocation: GeolocationData;
     let weatherInfo: WeatherData;
 
-    // ! USAGE TEST of the searchPlaces function
-    const query = "Egypt";
-    const locationResults = await searchPlaces(query);
-    console.warn(
-      "Location Info (formatted): \n",
-      locationResults.map((result: LocationData) => ({
-        name: result.name,
-        country: result.country,
-        latitude: result.lat,
-        longitude: result.lat,
-      })),
-    );
+    /**
+     * @function getWeatherEmoji
+     * @description WMO interpretation codes (WW) conversion
+     */
+    function getWeatherEmoji(code: number) {
+      if (code === 0) return "☀️"; // Clear sky
+      if ([1, 2, 3].includes(code)) return "☁️"; // Mainly clear, partly cloudy, and overcast
+      if ([45, 48].includes(code)) return "🌫️"; // Fog
+      if ([51, 53, 55].includes(code)) return "🌦️"; // Drizzle
+      if ([56, 57].includes(code)) return "❄️🌦️"; // Freezing Drizzle
+      if ([61, 63, 65].includes(code)) return "🌧️"; // Rain
+      if ([66, 67].includes(code)) return "❄️🌧️"; // Freezing Rain
+      if ([71, 73, 75].includes(code)) return "❄️"; // Snow fall
+      if (code === 77) return "🌨️"; // Snow grains
+      if ([80, 81, 82].includes(code)) return "🌦️"; // Rain showers
+      if ([85, 86].includes(code)) return "🌨️"; // Snow showers
+      if (code >= 95) return "⛈️"; // Thunderstorm
+      return "❓";
+    }
 
-    // ! USAGE TEST of the getWeatherInfo function
-      weatherInfo = await getWeatherInfo(31.2357, 30.0444);
-      console.warn("Weather Info (formatted): \n", {
-        currentTemperature: weatherInfo.current.temperature_2m,
-        daily: weatherInfo.daily,
-        // ? Hourly data for every 3 hours as requested for member 5
-        hourly: mapHourly(weatherInfo.hourly)
-          
+    function renderForecast(daily: DailyForecast[], hourly: HourlyForecast[]) {
+      const $dailyContainer = $('#daily-forecast-container');
+      const $hourlyContainer = $('#hourly-range-container');
+
+      $dailyContainer.empty();
+      $hourlyContainer.empty();
+
+      // Render 5-Day Forecast with Emojis
+      daily.forEach((data) => {
+        const dateObj = new Date(data.date.replace(/-/g, '/')); // Timezone fix for Vancouver
+        const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+        const dateString = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
+        const emoji = getWeatherEmoji(data.weatherCode); // Apply WMO codes
+
+        const html = `
+          <div class="day-card" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee;">
+            <div style="display: flex; flex-direction: column; width: 60px;">
+              <span style="font-weight: bold;">${dayName}</span>
+              <span style="font-size: 0.8rem; color: #888;">${dateString}</span>
+            </div>
+            <span style="font-size: 1.5rem;">${emoji}</span>
+            <div style="width: 80px; text-align: right;">
+              <span style="font-weight: bold;">${data.maxTemp}°</span>
+              <span style="color: #666; margin-left: 8px;">${data.minTemp}°</span>
+            </div>
+          </div>
+        `;
+        $dailyContainer.append(html);
       });
 
-    // ----
-    /**
-     * @function initApp
-     * @description This function initializes the application by first attempting to get the user's geolocation.
-     * If successful, it uses the obtained coordinates to fetch weather information. If geolocation fails (e.g., due to user denial or technical issues),
-     * it falls back to using Vancouver's coordinates to fetch weather information.
-     */
+      // Render 3-Hour Range with Emojis
+      hourly.forEach((data) => {
+        const timeLabel = new Date(data.time).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
+        const emoji = getWeatherEmoji(data.weatherCode);
+
+        const html = `
+          <div class="hour-item" style="display: inline-block; text-align: center; padding: 15px; min-width: 80px;">
+            <div style="font-size: 0.9rem; color: #555;">${timeLabel}</div>
+            <div style="font-size: 1.5rem; margin: 5px 0;">${emoji}</div>
+            <div style="font-weight: bold;">${data.temp}°</div>
+          </div>
+        `;
+        $hourlyContainer.append(html);
+      });
+    }
+
     async function initApp() {
       try {
         userLocation = await getGeolocation();
-
-        weatherInfo = await getWeatherInfo(userLocation.lng, userLocation.lat);
-        // console.log(weatherInfo)
       } catch (error) {
-        userLocation = {
-          // Vancouver's coordinates as fallback
-          lat: 49.2827,
-          lng: -123.1207,
-        };
-        console.error(
-          "Error getting geolocation, using fallback location:",
-          error,
-        );
-        weatherInfo = await getWeatherInfo(userLocation.lng, userLocation.lat);
-        console.log(weatherInfo);
+        userLocation = { lat: 49.2827, lng: -123.1207 };
+        console.error("Geolocation error, using fallback:", error);
       }
+
+      weatherInfo = await getWeatherInfo(userLocation.lng, userLocation.lat);
+      const dailyForecasts = mapDailyForecast(weatherInfo.daily);
+      const hourlyRange = mapHourlyRange(weatherInfo.hourly);
+
+      // Console Logs 1, 2, 3
+      console.warn("--- Final Mapped Data ---");
+      console.log("1. 5-Day Forecast Data:", dailyForecasts);
+      console.log("2. 3-Hour Interval Data (Next 24h):", hourlyRange);
+      console.log("3. mapHourly:", mapHourly(weatherInfo.hourly));
+
+      renderForecast(dailyForecasts, hourlyRange);
     }
 
     initApp();

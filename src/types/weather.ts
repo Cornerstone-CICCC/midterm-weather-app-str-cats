@@ -17,6 +17,19 @@ export type WeatherData = {
   daily: DailyData;
 };
 
+export interface DailyForecast {
+  date: string;
+  maxTemp: number;
+  minTemp: number;
+  weatherCode: number;
+}
+
+export interface HourlyForecast {
+  time: string;
+  temp: number;
+  weatherCode: number;
+}
+
 export type HourlyWeather = {
   time: string;
   temperature: number;
@@ -59,10 +72,16 @@ interface DailyUnits {
   time: string;
   sunrise: string;
   sunset: string;
+  weather_code: string;
+  temperature_2m_max: string;
+  temperature_2m_min: string;
 }
 
 interface DailyData {
   time: string[];
   sunrise: string[];
   sunset: string[];
+  weather_code: number[];
+  temperature_2m_max: number[];
+  temperature_2m_min: number[];
 }
