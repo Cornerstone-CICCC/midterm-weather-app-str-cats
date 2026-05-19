@@ -43,7 +43,7 @@ export function mapHourlyRange(hourly: WeatherData["hourly"]): HourlyForecast[] 
   return hourly.time
     .map((time, index) => ({
       time,
-      temp: Math.round(hourly.temperature_2m[index]),
+      temperature: Math.round(hourly.temperature_2m[index]),
       weatherCode: hourly.weather_code[index],
     }))
     .filter((_, index) => index % 3 === 0)

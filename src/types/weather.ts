@@ -26,7 +26,7 @@ export interface DailyForecast {
 
 export interface HourlyForecast {
   time: string;
-  temp: number;
+  temperature: number;
   weatherCode: number;
 }
 

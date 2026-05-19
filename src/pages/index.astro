@@ -15,6 +15,8 @@ import "../styles/global.css";
     <h1 class="">Weather Forecast</h1>
     
     <div id="daily-forecast-container"></div>
+    
+    <h3 id="hourly-title" style="margin-left: 12px; color: #333; margin-top: 30px;">Hourly Forecast</h3>
     <div id="hourly-range-container"></div>
   </body>
 
@@ -29,43 +31,61 @@ import "../styles/global.css";
 
     let userLocation: GeolocationData;
     let weatherInfo: WeatherData;
+    let allHourlyData: HourlyForecast[] = []; 
 
-    /**
-     * @function getWeatherEmoji
-     * @description WMO interpretation codes (WW) conversion
-     */
     function getWeatherEmoji(code: number) {
-      if (code === 0) return "☀️"; // Clear sky
-      if ([1, 2, 3].includes(code)) return "☁️"; // Mainly clear, partly cloudy, and overcast
-      if ([45, 48].includes(code)) return "🌫️"; // Fog
-      if ([51, 53, 55].includes(code)) return "🌦️"; // Drizzle
-      if ([56, 57].includes(code)) return "❄️🌦️"; // Freezing Drizzle
-      if ([61, 63, 65].includes(code)) return "🌧️"; // Rain
-      if ([66, 67].includes(code)) return "❄️🌧️"; // Freezing Rain
-      if ([71, 73, 75].includes(code)) return "❄️"; // Snow fall
-      if (code === 77) return "🌨️"; // Snow grains
-      if ([80, 81, 82].includes(code)) return "🌦️"; // Rain showers
-      if ([85, 86].includes(code)) return "🌨️"; // Snow showers
-      if (code >= 95) return "⛈️"; // Thunderstorm
+      if (code === 0) return "☀️";
+      if ([1, 2, 3].includes(code)) return "☁️";
+      if ([45, 48].includes(code)) return "🌫️";
+      if ([51, 53, 55].includes(code)) return "🌦️";
+      if ([56, 57].includes(code)) return "❄️🌦️";
+      if ([61, 63, 65].includes(code)) return "🌧️";
+      if ([66, 67].includes(code)) return "❄️🌧️";
+      if ([71, 73, 75].includes(code)) return "❄️";
+      if (code === 77) return "🌨️";
+      if ([80, 81, 82].includes(code)) return "🌦️";
+      if ([85, 86].includes(code)) return "🌨️";
+      if (code >= 95) return "⛈️";
       return "❓";
     }
 
-    function renderForecast(daily: DailyForecast[], hourly: HourlyForecast[]) {
-      const $dailyContainer = $('#daily-forecast-container');
+    function updateHourlyUI(targetDate: string) {
       const $hourlyContainer = $('#hourly-range-container');
-
-      $dailyContainer.empty();
+      const $hourlyTitle = $('#hourly-title');
       $hourlyContainer.empty();
 
-      // Render 5-Day Forecast with Emojis
+      const titleDate = new Date(targetDate.replace(/-/g, '/'));
+      $hourlyTitle.text(`${titleDate.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' })} Hourly Forecast`);
+
+      const filteredHourly = allHourlyData.filter(item => item.time.startsWith(targetDate));
+
+      filteredHourly.forEach((data) => {
+        const timeLabel = new Date(data.time).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
+        const emoji = getWeatherEmoji(data.weatherCode);
+        
+        const html = `
+          <div class="hour-item" style="display: inline-block; text-align: center; padding: 15px; min-width: 80px;">
+            <div style="font-size: 0.9rem; color: #555;">${timeLabel}</div>
+            <div style="font-size: 1.5rem; margin: 5px 0;">${emoji}</div>
+            <div style="font-weight: bold;">${data.temperature}°</div>
+          </div>
+        `;
+        $hourlyContainer.append(html);
+      });
+    }
+
+    function renderDailyForecast(daily: DailyForecast[]) {
+      const $dailyContainer = $('#daily-forecast-container');
+      $dailyContainer.empty();
+
       daily.forEach((data) => {
-        const dateObj = new Date(data.date.replace(/-/g, '/')); // Timezone fix for Vancouver
+        const dateObj = new Date(data.date.replace(/-/g, '/')); 
         const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
         const dateString = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
-        const emoji = getWeatherEmoji(data.weatherCode); // Apply WMO codes
+        const emoji = getWeatherEmoji(data.weatherCode);
 
         const html = `
-          <div class="day-card" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee;">
+          <div class="day-card" data-date="${data.date}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer;">
             <div style="display: flex; flex-direction: column; width: 60px;">
               <span style="font-weight: bold;">${dayName}</span>
               <span style="font-size: 0.8rem; color: #888;">${dateString}</span>
@@ -77,22 +97,19 @@ import "../styles/global.css";
             </div>
           </div>
         `;
-        $dailyContainer.append(html);
-      });
 
-      // Render 3-Hour Range with Emojis
-      hourly.forEach((data) => {
-        const timeLabel = new Date(data.time).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
-        const emoji = getWeatherEmoji(data.weatherCode);
+        const $card = $(html);
+        
+        $card.on('click', function() {
+          const selectedDate = $(this).attr('data-date');
+          if (selectedDate) {
+            updateHourlyUI(selectedDate);
+            $('.day-card').css('background', 'none');
+            $(this).css('background', '#f9f9f9');
+          }
+        });
 
-        const html = `
-          <div class="hour-item" style="display: inline-block; text-align: center; padding: 15px; min-width: 80px;">
-            <div style="font-size: 0.9rem; color: #555;">${timeLabel}</div>
-            <div style="font-size: 1.5rem; margin: 5px 0;">${emoji}</div>
-            <div style="font-weight: bold;">${data.temp}°</div>
-          </div>
-        `;
-        $hourlyContainer.append(html);
+        $dailyContainer.append($card);
       });
     }
 
@@ -101,20 +118,25 @@ import "../styles/global.css";
         userLocation = await getGeolocation();
       } catch (error) {
         userLocation = { lat: 49.2827, lng: -123.1207 };
-        console.error("Geolocation error, using fallback:", error);
       }
 
       weatherInfo = await getWeatherInfo(userLocation.lng, userLocation.lat);
+      
       const dailyForecasts = mapDailyForecast(weatherInfo.daily);
-      const hourlyRange = mapHourlyRange(weatherInfo.hourly);
+      const hourlyRange = mapHourlyRange(weatherInfo.hourly); // Added for console log 2
+      allHourlyData = mapHourly(weatherInfo.hourly); 
 
-      // Console Logs 1, 2, 3
+      renderDailyForecast(dailyForecasts);
+
+      if (dailyForecasts.length > 0) {
+        updateHourlyUI(dailyForecasts[0].date);
+      }
+
+      // Restore console logs 1, 2, 3 as requested
       console.warn("--- Final Mapped Data ---");
       console.log("1. 5-Day Forecast Data:", dailyForecasts);
       console.log("2. 3-Hour Interval Data (Next 24h):", hourlyRange);
-      console.log("3. mapHourly:", mapHourly(weatherInfo.hourly));
-
-      renderForecast(dailyForecasts, hourlyRange);
+      console.log("3. mapHourly Check:", allHourlyData);
     }
 
     initApp();
