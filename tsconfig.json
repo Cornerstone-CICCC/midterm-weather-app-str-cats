@@ -1,5 +1,11 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [".astro/types.d.ts", "**/*", "../astro.config.mjs", "../package-lock.json", "../package.json", "../tsconfig.json"],
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler"
+  },
+  "include": [".astro/types.d.ts", "src/**/*", "astro.config.mjs"],
   "exclude": ["dist"]
 }

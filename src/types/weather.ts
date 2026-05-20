@@ -50,14 +50,21 @@ interface CurrentData {
   interval: number;
   temperature_2m: number;
   weather_code: number;
+  apparent_temperature: number;
+  wind_speed_10m: number;
+  rain: number;
+  relative_humidity_2m: number;
+  uv_index: number;
+  precipitation: number;
+  snowfall: number;
 }
 
 interface HourlyUnits {
   time: string;
   temperature_2m: string;
   rain: string;
-  snowfall: string;
   weather_code: string;
+  snowfall:number;
 }
 
 interface HourlyData {
@@ -66,6 +73,7 @@ interface HourlyData {
   rain: number[];
   snowfall: number[];
   weather_code: number[];
+  precipitation_probability: number[]; 
 }
 
 interface DailyUnits {

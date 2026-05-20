@@ -3,28 +3,36 @@ import type { LocationData } from "../types/location";
 
 const PLACEKIT_API_URL = "https://api.placekit.co/search";
 
+function getPlaceKitApiKey(): string {
+  const apiKey = import.meta.env.PUBLIC_PLACEKIT_API_KEY;
+  if (!apiKey || String(apiKey).trim() === "") {
+    throw new Error("Missing PUBLIC_PLACEKIT_API_KEY");
+  }
+  return String(apiKey);
+}
+
 /**
- * @function searchPlaces
- * @param query - Input text value that the user types in the search field
- * @description This function gets the location results from the PlaceKit API based on the user's query.
- * @returns Array<LocationData[]> An array of location results matching the query, filtered by common countries and types
+ * City suggestions from PlaceKit
  */
 export async function searchPlaces(query: string): Promise<LocationData[]> {
   const response = await fetch(PLACEKIT_API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-placekit-api-key": import.meta.env.PUBLIC_PLACEKIT_API_KEY,
+      "x-placekit-api-key": getPlaceKitApiKey(),
     },
     body: JSON.stringify({
       query,
       countries: commonCountries,
       language: "en",
-      types: ["street", "city"],
+      types: ["city"],
       maxResults: 5,
     }),
   });
 
-  const data = await response.json();
-  return data.results;
+  const data: { results?: LocationData[] } = await response.json();
+  if (!response.ok) {
+    throw new Error(`PlaceKit error (${response.status})`);
+  }
+  return data.results ?? [];
 }
