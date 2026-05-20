@@ -1,56 +1,111 @@
 ---
-import type { WeatherData } from '../types/weather';
+// import type { WeatherData } from '../types/weather';
 
 
-interface Props {
-  cityName: string;
-  weatherInfo: WeatherData;
-}
+// interface Props {
+//   cityName: string;
+//   weatherInfo: WeatherData;
+// }
 
-const { cityName, weatherInfo } = Astro.props;
-const current = weatherInfo.current;
-const units = weatherInfo.current_units;
+// const { cityName, weatherInfo } = Astro.props;
+// const current = weatherInfo.current;
+// const units = weatherInfo.current_units;
 
 
-const formattedTime = new Date(current.time).toLocaleTimeString([], { 
-  hour: '2-digit', 
-  minute: '2-digit' 
-});
+// const formattedTime = new Date(current.time).toLocaleTimeString([], { 
+//   hour: '2-digit', 
+//   minute: '2-digit' 
+// });
 ---
 
-<section class="current-weather-card">
-  <div class="card-header">
-    <h2 class="city-name">{cityName}</h2>
-    
-    <button class="favorite-btn" aria-label="Add to favorites">
-      favorite
+
+<section class="current-weather-section flex gap-6">
+  
+<article class="hero-card relative w-80 rounded-[40px] bg-green-300 p-6 flex flex-col">
+  
+  <header class="relative z-10 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <button id="favorite-toggle" class="p-2 hover:opacity-80 transition" aria-label="Toggle Favorite">
+      ⭐
     </button>
-  </div>
+      <h2 id="hero-city-name" class="font-bold text-gray-900">Vancouver</h2>
+    </div>
+  </header>
 
-  <div class="weather-main">
-    <div class="temperature-display">
-      <span class="temperature-value">{current.temperature_2m}</span>
-      <span class="temperature-unit">{units.temperature_2m}</span>
+  <div class="flex items-center justify-between mt-6">
+    
+    <div class="flex flex-col">
+      <h1 class="text-6xl font-bold text-gray-900 tracking-tighter">
+        <span id="hero-temp-main">--</span>
+      </h1>
+      
+      <div class="flex items-center gap-3 mt-2 text-sm font-medium text-gray-800">
+        <span class="flex items-center gap-1">
+          ☂️ <span id="hero-precipitation">--</span>
+        </span>
+        <span class="text-gray-400">|</span>
+        <span class="flex items-center gap-1">
+          ❄️ <span id="hero-snowfall">--</span>
+        </span>
+      </div>
     </div>
     
-    <div class="weather-info-box">
-      <span class="weather-condition">Condition Code: {current.weather_code}</span>
-      <span class="local-time">{formattedTime} ({weatherInfo.timezone_abbreviation})</span>
+    <div class="">
+      <img id="hero-weather-cat" src="/assets/cloud-snow.svg" alt="Current Weather" class="w-full h-full object-contain" />
     </div>
   </div>
 
-  <div class="weather-details">
-    <div class="detail-item">
-      <span class="detail-label">Wind</span>
-      <span class="detail-value">-- km/h</span> 
+  <div class="">
+    <img src="/assets/cat-sunglasses.png" alt="Str Cats Mascot" class="w-full h-auto object-contain" />
+  </div>
+
+  <footer class="relative z-10 mt-auto flex flex-col items-center text-white/90 pb-2">
+    <div class="flex items-center gap-1 font-bold text-sm">
+      <span>Weather Forecat</span>
+      <span class="text-lg leading-none">🐱</span>
     </div>
-    <div class="detail-item">
-      <span class="detail-label">Rain</span>
-      <span class="detail-value">-- mm</span>
+    <p class="text-[10px] tracking-wide mt-0.5">by str Cats Studio©</p>
+    
+    <a href="https://github.com/Cornerstone-CICCC/midterm-weather-app-str-cats" target="_blank" class="mt-2 hover:text-white transition">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+      </svg>
+    </a>
+  </footer>
+
+</article>
+
+  <div class="details-section flex flex-col gap-4 w-80">
+    
+    <div class="grid grid-cols-2 gap-4">
+      <div class="bg-white/50 rounded-2xl p-4 text-center">
+        <p class="text-sm font-bold">🌅 Sunrise</p>
+        <p id="hero-sunrise" class="text-lg font-bold">--:--</p>
+      </div>
+      <div class="bg-white/50 rounded-2xl p-4 text-center">
+        <p class="text-sm font-bold">🌇 Sunset</p>
+        <p id="hero-sunset" class="text-lg font-bold">--:--</p>
+      </div>
     </div>
-    <div class="detail-item">
-      <span class="detail-label">Humidity</span>
-      <span class="detail-value">-- %</span>
+
+    <div class="bg-white/50 rounded-2xl p-4 flex flex-col gap-3">
+      <div class="flex justify-between border-b pb-2">
+        <span class="text-gray-600 text-sm">Humidity</span>
+        <span id="hero-humidity" class="font-bold">-- %</span>
+      </div>
+      <div class="flex justify-between border-b pb-2">
+        <span class="text-gray-600 text-sm">Wind</span>
+        <span id="hero-wind" class="font-bold">-- km/h</span>
+      </div>
+      <div class="flex justify-between border-b pb-2">
+        <span class="text-gray-600 text-sm">Air Quality</span>
+        <span id="hero-air-quality" class="font-bold">--</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-600 text-sm">UV Index</span>
+        <span id="hero-uv" class="font-bold">--</span>
+      </div>
     </div>
+
   </div>
 </section>
