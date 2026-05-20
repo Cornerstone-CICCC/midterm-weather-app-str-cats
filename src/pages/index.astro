@@ -1,5 +1,16 @@
 ---
 import "../styles/global.css";
+// Import team components
+import DayCard from "../components/DayCard.astro";
+import HoursCard from "../components/HoursCard.astro";
+
+// Pre-define mock data for initial server-side rendering setup
+const placeholderDaily = Array.from({ length: 5 }).map((_, i) => ({
+  date: "",
+  maxTemp: 0,
+  minTemp: 0,
+  weatherCode: 0
+}));
 ---
 
 <html lang="en">
@@ -9,76 +20,166 @@ import "../styles/global.css";
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
+    <title>Astro Weather - Vancouver</title>
   </head>
   <body>
-    <h1 class="">Astro</h1>
+    <h1 class="">Weather Forecast</h1>
+    
+    <div id="daily-forecast-container">
+      {placeholderDaily.map((forecast) => <DayCard forecast={forecast} />)}
+    </div>
+    
+    <h3 id="hourly-title" style="margin-left: 12px; color: #333; margin-top: 30px;">Hourly Forecast</h3>
+    
+    <div id="hourly-range-container">
+      {Array.from({ length: 8 }).map(() => <HoursCard />)}
+    </div>
   </body>
+
   <script>
     import $ from "jquery";
-
-    // > Types import
     import type { LocationData, GeolocationData } from "../types/location";
-    import type { WeatherData, HourlyWeather } from "../types/weather";
-
-    // > Library functions import
+    import type { WeatherData, DailyForecast, HourlyForecast } from "../types/weather";
     import { getGeolocation } from "../lib/geolocation";
     import { searchPlaces } from "../lib/placekit";
     import { getWeatherInfo } from "../lib/weather";
-    import { mapHourly } from "../lib/weather-mapper";
+    import { mapHourly, mapDailyForecast, mapHourlyRange } from "../lib/weather-mapper";
 
     let userLocation: GeolocationData;
     let weatherInfo: WeatherData;
+    let allHourlyData: HourlyForecast[] = []; 
 
-    // ! USAGE TEST of the searchPlaces function
-    const query = "Egypt";
-    const locationResults = await searchPlaces(query);
-    console.warn(
-      "Location Info (formatted): \n",
-      locationResults.map((result: LocationData) => ({
-        name: result.name,
-        country: result.country,
-        latitude: result.lat,
-        longitude: result.lat,
-      })),
-    );
+    /**
+     * @function getWeatherEmoji
+     * @description Converts WMO interpretation codes into visual weather emojis
+     */
+    function getWeatherEmoji(code: number) {
+      if (code === 0) return "☀️";
+      if ([1, 2, 3].includes(code)) return "☁️";
+      if ([45, 48].includes(code)) return "🌫️";
+      if ([51, 53, 55].includes(code)) return "🌦️";
+      if ([56, 57].includes(code)) return "❄️🌦️";
+      if ([61, 63, 65].includes(code)) return "🌧️";
+      if ([66, 67].includes(code)) return "❄️🌧️";
+      if ([71, 73, 75].includes(code)) return "❄️";
+      if (code === 77) return "🌨️";
+      if ([80, 81, 82].includes(code)) return "🌦️";
+      if ([85, 86].includes(code)) return "🌨️";
+      if (code >= 95) return "⛈️";
+      return "❓";
+    }
 
-    // ! USAGE TEST of the getWeatherInfo function
-      weatherInfo = await getWeatherInfo(31.2357, 30.0444);
-      console.warn("Weather Info (formatted): \n", {
-        currentTemperature: weatherInfo.current.temperature_2m,
-        daily: weatherInfo.daily,
-        // ? Hourly data for every 3 hours as requested for member 5
-        hourly: mapHourly(weatherInfo.hourly)
-          
+    /**
+     * @function updateHourlyUI
+     * @description Dynamically updates the pre-rendered HoursCard elements with filtered data
+     */
+    function updateHourlyUI(targetDate: string) {
+      const $hourlyTitle = $('#hourly-title');
+      const titleDate = new Date(targetDate.replace(/-/g, '/'));
+      $hourlyTitle.text(`${titleDate.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' })} Hourly Forecast`);
+
+      const filteredHourly = allHourlyData.filter(item => item.time.startsWith(targetDate));
+      const $hourItems = $('.hour-item');
+
+      $hourItems.each((index, element) => {
+        const $item = $(element);
+        const data = filteredHourly[index];
+
+        if (data) {
+          const timeLabel = new Date(data.time).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
+          const emoji = getWeatherEmoji(data.weatherCode);
+
+          $item.find('.hour-time').text(timeLabel);
+          $item.find('.hour-emoji').text(emoji);
+          $item.find('.hour-temp').text(`${data.temperature}°`);
+          $item.show(); 
+        } else {
+          $item.hide(); 
+        }
       });
+    }
 
-    // ----
+    /**
+     * @function updateDailyUI
+     * @description Updates the pre-rendered DayCard components with real API data and attaches click events
+     */
+    function updateDailyUI(daily: DailyForecast[]) {
+      const $dayCards = $('.day-card');
+
+      $dayCards.each((index, element) => {
+        const $card = $(element);
+        const data = daily[index];
+
+        if (data) {
+          const dateObj = new Date(data.date.replace(/-/g, '/')); 
+          const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+          const dateString = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
+          const emoji = getWeatherEmoji(data.weatherCode);
+
+          // Map dynamic data into DayCard layout structure without breaking alignment
+          $card.attr('data-date', data.date); 
+          
+          $card.find('.day-name').html(`
+            <span style="font-weight: bold; display: block;">${dayName}</span>
+            <span style="font-size: 0.8rem; color: #888; font-weight: normal; display: block; margin-top: 2px;">${dateString}</span>
+          `);
+          
+          $card.find('.weather-icon-temp').html(`<span style="font-size: 1.5rem;">${emoji}</span>`);
+          $card.find('.max-temp').text(`${data.maxTemp}°`);
+          $card.find('.min-temp').text(`${data.minTemp}°`);
+          
+          $card.css('cursor', 'pointer');
+
+          // Smoothly toggle highlight using fine borders instead of breaking background layers
+          $card.off('click').on('click', function() {
+            const selectedDate = $(this).attr('data-date');
+            if (selectedDate) {
+              updateHourlyUI(selectedDate);
+              // Reset all cards to their default component styling
+              $('.day-card').css({
+                'border': '1px solid #eee',
+                'box-shadow': 'none'
+              });
+              // Emphasize the active card seamlessly without shifting heights
+              $(this).css({
+                'border': '1px solid #333',
+                'box-shadow': 'inset 0 0 5px rgba(0,0,0,0.05)'
+              });
+            }
+          });
+        }
+      });
+    }
+
     /**
      * @function initApp
-     * @description This function initializes the application by first attempting to get the user's geolocation.
-     * If successful, it uses the obtained coordinates to fetch weather information. If geolocation fails (e.g., due to user denial or technical issues),
-     * it falls back to using Vancouver's coordinates to fetch weather information.
+     * @description Core initialization logic to fetch location data and call data mappers
      */
     async function initApp() {
       try {
         userLocation = await getGeolocation();
-
-        weatherInfo = await getWeatherInfo(userLocation.lng, userLocation.lat);
-        // console.log(weatherInfo)
       } catch (error) {
-        userLocation = {
-          // Vancouver's coordinates as fallback
-          lat: 49.2827,
-          lng: -123.1207,
-        };
-        console.error(
-          "Error getting geolocation, using fallback location:",
-          error,
-        );
-        weatherInfo = await getWeatherInfo(userLocation.lng, userLocation.lat);
-        console.log(weatherInfo);
+        userLocation = { lat: 49.2827, lng: -123.1207 };
       }
+
+      weatherInfo = await getWeatherInfo(userLocation.lng, userLocation.lat);
+      
+      const dailyForecasts = mapDailyForecast(weatherInfo.daily);
+      const hourlyRange = mapHourlyRange(weatherInfo.hourly); 
+      allHourlyData = mapHourly(weatherInfo.hourly); 
+
+      updateDailyUI(dailyForecasts);
+
+      if (dailyForecasts.length > 0) {
+        updateHourlyUI(dailyForecasts[0].date);
+        // Trigger initial active look for the first day item
+        $('.day-card').first().css('border', '1px solid #333');
+      }
+
+      console.warn("--- Final Mapped Data ---");
+      console.log("1. 5-Day Forecast Data:", dailyForecasts);
+      console.log("2. 3-Hour Interval Data (Next 24h):", hourlyRange);
+      console.log("3. mapHourly Check:", allHourlyData);
     }
 
     initApp();

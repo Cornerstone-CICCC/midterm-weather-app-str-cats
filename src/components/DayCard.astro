@@ -1,4 +1,52 @@
 ---
+// src/components/DayCard.astro
+import type { DailyForecast } from "../types/weather";
 
+interface Props {
+  forecast: DailyForecast;
+}
+
+const { forecast } = Astro.props;
+
+const dayName = new Date(forecast.date).toLocaleDateString('en-US', { weekday: 'short' });
 ---
 
+<div class="day-card">
+  <span class="day-name">{dayName}</span>
+  
+  <div class="weather-icon-temp">
+    <span class="weather-code">Code: {forecast.weatherCode}</span>
+  </div>
+
+  <div class="temp-range">
+    <span class="max-temp">{forecast.maxTemp}°</span>
+    <span class="min-temp">{forecast.minTemp}°</span>
+  </div>
+</div>
+
+<style>
+  .day-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+  }
+  .day-name {
+    font-weight: bold;
+    width: 50px;
+  }
+  .temp-range {
+    display: flex;
+    gap: 10px;
+  }
+  .max-temp {
+    font-weight: 600;
+  }
+  .min-temp {
+    color: #666;
+  }
+</style>
