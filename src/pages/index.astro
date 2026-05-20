@@ -1,5 +1,16 @@
 ---
 import "../styles/global.css";
+// Import team components
+import DayCard from "../components/DayCard.astro";
+import HoursCard from "../components/HoursCard.astro";
+
+// Pre-define mock data for initial server-side rendering setup
+const placeholderDaily = Array.from({ length: 5 }).map((_, i) => ({
+  date: "",
+  maxTemp: 0,
+  minTemp: 0,
+  weatherCode: 0
+}));
 ---
 
 <html lang="en">
@@ -14,10 +25,15 @@ import "../styles/global.css";
   <body>
     <h1 class="">Weather Forecast</h1>
     
-    <div id="daily-forecast-container"></div>
+    <div id="daily-forecast-container">
+      {placeholderDaily.map((forecast) => <DayCard forecast={forecast} />)}
+    </div>
     
     <h3 id="hourly-title" style="margin-left: 12px; color: #333; margin-top: 30px;">Hourly Forecast</h3>
-    <div id="hourly-range-container"></div>
+    
+    <div id="hourly-range-container">
+      {Array.from({ length: 8 }).map(() => <HoursCard />)}
+    </div>
   </body>
 
   <script>
@@ -33,6 +49,10 @@ import "../styles/global.css";
     let weatherInfo: WeatherData;
     let allHourlyData: HourlyForecast[] = []; 
 
+    /**
+     * @function getWeatherEmoji
+     * @description Converts WMO interpretation codes into visual weather emojis
+     */
     function getWeatherEmoji(code: number) {
       if (code === 0) return "☀️";
       if ([1, 2, 3].includes(code)) return "☁️";
@@ -49,70 +69,92 @@ import "../styles/global.css";
       return "❓";
     }
 
+    /**
+     * @function updateHourlyUI
+     * @description Dynamically updates the pre-rendered HoursCard elements with filtered data
+     */
     function updateHourlyUI(targetDate: string) {
-      const $hourlyContainer = $('#hourly-range-container');
       const $hourlyTitle = $('#hourly-title');
-      $hourlyContainer.empty();
-
       const titleDate = new Date(targetDate.replace(/-/g, '/'));
       $hourlyTitle.text(`${titleDate.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' })} Hourly Forecast`);
 
       const filteredHourly = allHourlyData.filter(item => item.time.startsWith(targetDate));
+      const $hourItems = $('.hour-item');
 
-      filteredHourly.forEach((data) => {
-        const timeLabel = new Date(data.time).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
-        const emoji = getWeatherEmoji(data.weatherCode);
-        
-        const html = `
-          <div class="hour-item" style="display: inline-block; text-align: center; padding: 15px; min-width: 80px;">
-            <div style="font-size: 0.9rem; color: #555;">${timeLabel}</div>
-            <div style="font-size: 1.5rem; margin: 5px 0;">${emoji}</div>
-            <div style="font-weight: bold;">${data.temperature}°</div>
-          </div>
-        `;
-        $hourlyContainer.append(html);
+      $hourItems.each((index, element) => {
+        const $item = $(element);
+        const data = filteredHourly[index];
+
+        if (data) {
+          const timeLabel = new Date(data.time).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
+          const emoji = getWeatherEmoji(data.weatherCode);
+
+          $item.find('.hour-time').text(timeLabel);
+          $item.find('.hour-emoji').text(emoji);
+          $item.find('.hour-temp').text(`${data.temperature}°`);
+          $item.show(); 
+        } else {
+          $item.hide(); 
+        }
       });
     }
 
-    function renderDailyForecast(daily: DailyForecast[]) {
-      const $dailyContainer = $('#daily-forecast-container');
-      $dailyContainer.empty();
+    /**
+     * @function updateDailyUI
+     * @description Updates the pre-rendered DayCard components with real API data and attaches click events
+     */
+    function updateDailyUI(daily: DailyForecast[]) {
+      const $dayCards = $('.day-card');
 
-      daily.forEach((data) => {
-        const dateObj = new Date(data.date.replace(/-/g, '/')); 
-        const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
-        const dateString = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
-        const emoji = getWeatherEmoji(data.weatherCode);
+      $dayCards.each((index, element) => {
+        const $card = $(element);
+        const data = daily[index];
 
-        const html = `
-          <div class="day-card" data-date="${data.date}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; cursor: pointer;">
-            <div style="display: flex; flex-direction: column; width: 60px;">
-              <span style="font-weight: bold;">${dayName}</span>
-              <span style="font-size: 0.8rem; color: #888;">${dateString}</span>
-            </div>
-            <span style="font-size: 1.5rem;">${emoji}</span>
-            <div style="width: 80px; text-align: right;">
-              <span style="font-weight: bold;">${data.maxTemp}°</span>
-              <span style="color: #666; margin-left: 8px;">${data.minTemp}°</span>
-            </div>
-          </div>
-        `;
+        if (data) {
+          const dateObj = new Date(data.date.replace(/-/g, '/')); 
+          const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+          const dateString = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
+          const emoji = getWeatherEmoji(data.weatherCode);
 
-        const $card = $(html);
-        
-        $card.on('click', function() {
-          const selectedDate = $(this).attr('data-date');
-          if (selectedDate) {
-            updateHourlyUI(selectedDate);
-            $('.day-card').css('background', 'none');
-            $(this).css('background', '#f9f9f9');
-          }
-        });
+          // Map dynamic data into DayCard layout structure without breaking alignment
+          $card.attr('data-date', data.date); 
+          
+          $card.find('.day-name').html(`
+            <span style="font-weight: bold; display: block;">${dayName}</span>
+            <span style="font-size: 0.8rem; color: #888; font-weight: normal; display: block; margin-top: 2px;">${dateString}</span>
+          `);
+          
+          $card.find('.weather-icon-temp').html(`<span style="font-size: 1.5rem;">${emoji}</span>`);
+          $card.find('.max-temp').text(`${data.maxTemp}°`);
+          $card.find('.min-temp').text(`${data.minTemp}°`);
+          
+          $card.css('cursor', 'pointer');
 
-        $dailyContainer.append($card);
+          // Smoothly toggle highlight using fine borders instead of breaking background layers
+          $card.off('click').on('click', function() {
+            const selectedDate = $(this).attr('data-date');
+            if (selectedDate) {
+              updateHourlyUI(selectedDate);
+              // Reset all cards to their default component styling
+              $('.day-card').css({
+                'border': '1px solid #eee',
+                'box-shadow': 'none'
+              });
+              // Emphasize the active card seamlessly without shifting heights
+              $(this).css({
+                'border': '1px solid #333',
+                'box-shadow': 'inset 0 0 5px rgba(0,0,0,0.05)'
+              });
+            }
+          });
+        }
       });
     }
 
+    /**
+     * @function initApp
+     * @description Core initialization logic to fetch location data and call data mappers
+     */
     async function initApp() {
       try {
         userLocation = await getGeolocation();
@@ -123,16 +165,17 @@ import "../styles/global.css";
       weatherInfo = await getWeatherInfo(userLocation.lng, userLocation.lat);
       
       const dailyForecasts = mapDailyForecast(weatherInfo.daily);
-      const hourlyRange = mapHourlyRange(weatherInfo.hourly); // Added for console log 2
+      const hourlyRange = mapHourlyRange(weatherInfo.hourly); 
       allHourlyData = mapHourly(weatherInfo.hourly); 
 
-      renderDailyForecast(dailyForecasts);
+      updateDailyUI(dailyForecasts);
 
       if (dailyForecasts.length > 0) {
         updateHourlyUI(dailyForecasts[0].date);
+        // Trigger initial active look for the first day item
+        $('.day-card').first().css('border', '1px solid #333');
       }
 
-      // Restore console logs 1, 2, 3 as requested
       console.warn("--- Final Mapped Data ---");
       console.log("1. 5-Day Forecast Data:", dailyForecasts);
       console.log("2. 3-Hour Interval Data (Next 24h):", hourlyRange);
