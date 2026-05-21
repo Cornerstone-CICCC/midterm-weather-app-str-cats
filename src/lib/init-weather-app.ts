@@ -221,6 +221,7 @@ function renderWeatherCard(weather: WeatherData): void {
   $("#hero-feels-like").text(`${weather.current.apparent_temperature}`);
   $("#hero-wind").text(`${weather.current.wind_speed_10m} km/h`);
   $("#hero-humidity").text(`${weather.current.relative_humidity_2m} %`);
+  $("#hero-uv").text(`${weather.current.uv_index}`);
 
   // 3. Format Sunrise and Sunset
   const sunriseRaw = weather.daily.sunrise[0];
