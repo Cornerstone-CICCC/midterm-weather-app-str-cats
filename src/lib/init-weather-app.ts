@@ -246,11 +246,13 @@ function renderWeatherCard(weather: WeatherData): void {
   const sunsetTime = new Date(weather.daily.sunset[0]).getTime();
   const isDaytime = nowTime >= sunriseTime && nowTime < sunsetTime;
 
-  //Get the correct icon filename based on weather code and daytime status
+  //Get the weather icon 
   const iconFilename = getWeatherIconFilename(weather.current.weather_code, isDaytime);
-
-  // Note: This path assumes the images are located in the public/assets/weather-animated/ directory
   $("#hero-weather").attr("src", `/assets/weather-animated/${iconFilename}`);
+
+  // Get the cat mascot
+  const catFilename = getWeatherCatFilename(weather.current.weather_code);
+  $("#cat-mascot").attr("src", `/assets/${catFilename}`);
 
 
   const conditionText = getWeatherDescription(weather.current.weather_code);
@@ -561,6 +563,33 @@ function getWeatherIconFilename(code: number, isDay: boolean): string {
   
   // Return clear sky as default if no match is found
   return isDay ? "0-day.svg" : "0-night.svg";
+}
+
+/**
+ * Returns the corresponding cat mascot filename based on the weather code.
+ * @param code - The current weather code from the Open-Meteo API
+ * @returns The filename of the cat mascot image (assuming they are placed in public/assets/)
+ */
+function getWeatherCatFilename(code: number): string {
+  // Sunny / Clear / slightly cloudy
+  if ([0, 1].includes(code)) return "sunny.png";
+
+  // Cloudy / Foggy
+  if ([2, 3, 45, 48].includes(code)) return "cloudy.png";
+
+  // Rainy / Showers / Thunderstorms / Wet Weather
+  if ([
+    51, 53, 55, 56, 57, // Drizzle
+    61, 63, 65, 66, 67, // Rain
+    80, 81, 82,         // Rain showers
+    95, 96, 99          // Thunderstorm
+  ].includes(code)) return "rainy.png";
+
+  // Snowy / Sleet / Freezing Weather
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return "snowy.png";
+
+  // Default to Sunny cat
+  return "sunny.png";
 }
 
 /**
