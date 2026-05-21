@@ -252,7 +252,7 @@ function renderWeatherCard(weather: WeatherData): void {
 
   // Get the cat mascot
   const catFilename = getWeatherCatFilename(weather.current.weather_code);
-  $("#cat-mascot").attr("src", `/assets/${catFilename}`);
+  $("#cat-mascot").attr("src", `/assets/cats/${catFilename}`);
 
 
   const conditionText = getWeatherDescription(weather.current.weather_code);
