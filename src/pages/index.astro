@@ -44,8 +44,14 @@ const placeholderDaily = Array.from({ length: 5 }).map((_, i) => ({
 
     <CurrentWeather />
 
-    <div id="daily-forecast-container">
-      {placeholderDaily.map((forecast) => <DayCard forecast={forecast} />)}
+    <div class="max-w-[600px] w-full mt-6">
+      <h3 class="text-xs font-black text-gray-700 tracking-tight mb-4 ml-2">
+        5-Day Forecast
+      </h3>
+      
+      <div id="daily-forecast-container" class="flex flex-col md:flex-row items-center gap-3 w-full">
+        {placeholderDaily.map((forecast) => <DayCard forecast={forecast} />)}
+      </div>
     </div>
 
     <h3
