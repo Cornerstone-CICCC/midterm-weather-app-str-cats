@@ -23,16 +23,16 @@ import {
   GEO_LOCATION_LABEL,
   getTodayMinMax,
 } from "./weather-display";
-import {
-  mapHourly,
-  mapDailyForecast,
-  mapHourlyRange,
-} from "./weather-mapper";
+import { mapHourly, mapDailyForecast, mapHourlyRange } from "./weather-mapper";
 // - Types
 import { getWeatherInfo } from "./weather";
 import type { FavoriteCity } from "../types/favorite-city";
 import type { LocationData } from "../types/location";
-import type { WeatherData, DailyForecast, HourlyForecast } from "../types/weather";
+import type {
+  WeatherData,
+  DailyForecast,
+  HourlyForecast,
+} from "../types/weather";
 
 type SelectedCity = {
   displayName: string;
@@ -163,7 +163,7 @@ async function resolveInitialCity(): Promise<void> {
 }
 
 const SEARCH_RESULT_OPTION_CLASS =
-	"w-full px-4 py-2.5 text-left text-sm text-slate-950 hover:bg-slate-50 focus:bg-slate-50 focus:outline-none";
+  "w-full px-4 py-2.5 text-left text-sm text-slate-950 hover:bg-slate-50 focus:bg-slate-50 focus:outline-none";
 const SEARCH_RESULT_SUBTITLE_CLASS = "block text-xs text-slate-500 mt-0.5";
 
 /**
@@ -172,8 +172,8 @@ const SEARCH_RESULT_SUBTITLE_CLASS = "block text-xs text-slate-500 mt-0.5";
  * @returns {void}
  */
 function hideFavoriteList(): void {
-	$("#favorite-cities-list").addClass("hidden");
-	$("#favorite-cities-trigger").attr("aria-expanded", "false");
+  $("#favorite-cities-list").addClass("hidden");
+  $("#favorite-cities-trigger").attr("aria-expanded", "false");
 }
 
 /**
@@ -182,9 +182,9 @@ function hideFavoriteList(): void {
  * @returns {void}
  */
 function showFavoriteList(): void {
-	if (!favoritesCache.length) return;
-	$("#favorite-cities-list").removeClass("hidden");
-	$("#favorite-cities-trigger").attr("aria-expanded", "true");
+  // if (!favoritesCache.length) return;
+  $("#favorite-cities-list").removeClass("hidden");
+  $("#favorite-cities-trigger").attr("aria-expanded", "true");
 }
 
 /**
@@ -193,30 +193,40 @@ function showFavoriteList(): void {
  * @returns {void}
  */
 function renderFavoriteDropdown(): void {
-	favoritesCache = loadFavorites();
-	const $list = $("#favorite-cities-list");
-	$list.empty();
-	hideFavoriteList();
-	for (const fav of favoritesCache) {
-		const $item = $("<li>", { role: "presentation" });
-		const $btn = $("<button>", {
-			type: "button",
-			class: SEARCH_RESULT_OPTION_CLASS,
-			role: "option",
-			"data-id": fav.id,
-		});
-		$("<span>", { class: "block font-medium", text: fav.displayName }).appendTo(
-			$btn,
-		);
-		if (fav.subtitle) {
-			$("<span>", {
-				class: SEARCH_RESULT_SUBTITLE_CLASS,
-				text: fav.subtitle,
-			}).appendTo($btn);
-		}
-		$item.append($btn);
-		$list.append($item);
-	}
+  favoritesCache = loadFavorites();
+  const $list = $("#favorite-cities-list");
+  $list.empty();
+  hideFavoriteList();
+  if (!favoritesCache.length) {
+    console.log("enter");
+    $list.append(
+      $("<li>", {
+        class: "px-4 py-2 text-sm text-slate-500",
+        text: "No favorites yet",
+      }),
+    );
+    return;
+  }
+  for (const fav of favoritesCache) {
+    const $item = $("<li>", { role: "presentation" });
+    const $btn = $("<button>", {
+      type: "button",
+      class: SEARCH_RESULT_OPTION_CLASS,
+      role: "option",
+      "data-id": fav.id,
+    });
+    $("<span>", { class: "block font-medium", text: fav.displayName }).appendTo(
+      $btn,
+    );
+    if (fav.subtitle) {
+      $("<span>", {
+        class: SEARCH_RESULT_SUBTITLE_CLASS,
+        text: fav.subtitle,
+      }).appendTo($btn);
+    }
+    $item.append($btn);
+    $list.append($item);
+  }
 }
 
 function renderLocationSubtitle(): void {
@@ -307,11 +317,11 @@ function renderWeatherCard(weather: WeatherData): void {
   // Update Daily Cards
   updateDailyUI(dailyForecasts);
 
-  // Initialize Hourly Panel state mapping 
+  // Initialize Hourly Panel state mapping
   if (dailyForecasts.length > 0) {
     updateHourlyUI(dailyForecasts[0].date);
-    
-    // Clear and re-trigger initial active styling border anchor 
+
+    // Clear and re-trigger initial active styling border anchor
     $(".day-card").css({ border: "1px solid #eee", "box-shadow": "none" });
     $(".day-card").first().css("border", "1px solid #333");
   }
@@ -366,38 +376,38 @@ function hideSearchResults(): void {
  * @returns {void}
  */
 function showSearchResults(locations: LocationData[]): void {
-	const $list = $("#search-results");
-	$list.empty();
-	if (!locations.length) {
-		$list.addClass("hidden");
-		return;
-	}
-	for (const loc of locations) {
-		const $item = $("<li>", { role: "presentation" });
-		const $btn = $("<button>", {
-			type: "button",
-			class: SEARCH_RESULT_OPTION_CLASS,
-			role: "option",
-		});
-		const title = getCityDisplayName(loc);
-		const subtitle = formatLocationSubtitle(loc);
-		$("<span>", { class: "block font-medium", text: title }).appendTo($btn);
-		if (subtitle) {
-			$("<span>", {
-				class: SEARCH_RESULT_SUBTITLE_CLASS,
-				text: subtitle,
-			}).appendTo($btn);
-		}
-		$btn.on("click", () => {
-			selectedCity = locationFromPlaceKit(loc);
-			$("#search-city-input").val("");
-			hideSearchResults();
-			void loadWeatherForSelected();
-		});
-		$item.append($btn);
-		$list.append($item);
-	}
-	$list.removeClass("hidden");
+  const $list = $("#search-results");
+  $list.empty();
+  if (!locations.length) {
+    $list.addClass("hidden");
+    return;
+  }
+  for (const loc of locations) {
+    const $item = $("<li>", { role: "presentation" });
+    const $btn = $("<button>", {
+      type: "button",
+      class: SEARCH_RESULT_OPTION_CLASS,
+      role: "option",
+    });
+    const title = getCityDisplayName(loc);
+    const subtitle = formatLocationSubtitle(loc);
+    $("<span>", { class: "block font-medium", text: title }).appendTo($btn);
+    if (subtitle) {
+      $("<span>", {
+        class: SEARCH_RESULT_SUBTITLE_CLASS,
+        text: subtitle,
+      }).appendTo($btn);
+    }
+    $btn.on("click", () => {
+      selectedCity = locationFromPlaceKit(loc);
+      $("#search-city-input").val("");
+      hideSearchResults();
+      void loadWeatherForSelected();
+    });
+    $item.append($btn);
+    $list.append($item);
+  }
+  $list.removeClass("hidden");
 }
 
 /**
@@ -449,34 +459,34 @@ function bindFavoriteToggle(): void {
  * @returns {void}
  */
 function bindFavoriteDropdown(): void {
-	$("#favorite-cities-trigger").on("click", () => {
-		const $list = $("#favorite-cities-list");
-		if ($list.hasClass("hidden")) showFavoriteList();
-		else hideFavoriteList();
-	});
+  $("#favorite-cities-trigger").on("click", () => {
+    const $list = $("#favorite-cities-list");
+    if ($list.hasClass("hidden")) showFavoriteList();
+    else hideFavoriteList();
+  });
 
-	$("#favorite-cities-list").on(
-		"click",
-		'button[role="option"]',
-		function (this: HTMLButtonElement) {
-			favoritesCache = loadFavorites();
-			const id = String($(this).data("id"));
-			const fav = favoritesCache.find((f) => f.id === id);
-			hideFavoriteList();
-			if (!fav) return;
-			selectedCity = {
-				displayName: fav.displayName,
-				subtitle: fav.subtitle ?? "",
-				latitude: fav.latitude,
-				longitude: fav.longitude,
-			};
-			void loadWeatherForSelected();
-		},
-	);
+  $("#favorite-cities-list").on(
+    "click",
+    'button[role="option"]',
+    function (this: HTMLButtonElement) {
+      favoritesCache = loadFavorites();
+      const id = String($(this).data("id"));
+      const fav = favoritesCache.find((f) => f.id === id);
+      hideFavoriteList();
+      if (!fav) return;
+      selectedCity = {
+        displayName: fav.displayName,
+        subtitle: fav.subtitle ?? "",
+        latitude: fav.latitude,
+        longitude: fav.longitude,
+      };
+      void loadWeatherForSelected();
+    },
+  );
 
-	$("#favorite-cities-trigger").on("keydown", (e) => {
-		if (e.key === "Escape") hideFavoriteList();
-	});
+  $("#favorite-cities-trigger").on("keydown", (e) => {
+    if (e.key === "Escape") hideFavoriteList();
+  });
 }
 
 /**
@@ -505,17 +515,17 @@ function bindSearchInput(): void {
  * @returns {void}
  */
 function bindClickOutsideDropdowns(): void {
-	$(document).on("click", (e) => {
-		const target = e.target as Node;
-		const $searchWrap = $("#search-city-input").parent();
-		if ($searchWrap.length && !$searchWrap[0]?.contains(target)) {
-			hideSearchResults();
-		}
-		const $favWrap = $("#favorite-cities-trigger").parent();
-		if ($favWrap.length && !$favWrap[0]?.contains(target)) {
-			hideFavoriteList();
-		}
-	});
+  $(document).on("click", (e) => {
+    const target = e.target as Node;
+    const $searchWrap = $("#search-city-input").parent();
+    if ($searchWrap.length && !$searchWrap[0]?.contains(target)) {
+      hideSearchResults();
+    }
+    const $favWrap = $("#favorite-cities-trigger").parent();
+    if ($favWrap.length && !$favWrap[0]?.contains(target)) {
+      hideFavoriteList();
+    }
+  });
 }
 
 /**
@@ -587,8 +597,8 @@ export async function initWeatherApp(): Promise<void> {
   refreshStarState();
   await loadWeatherForSelected();
 
-	bindFavoriteToggle();
-	bindFavoriteDropdown();
-	bindSearchInput();
-	bindClickOutsideDropdowns();
+  bindFavoriteToggle();
+  bindFavoriteDropdown();
+  bindSearchInput();
+  bindClickOutsideDropdowns();
 }
