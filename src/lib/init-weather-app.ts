@@ -236,13 +236,13 @@ function renderWeatherCard(weather: WeatherData): void {
 function getAirQualityLevel(aqi) {
   if (aqi === null || aqi === undefined) return "unknown";
 
-  if (aqi <= 20) return `good (${aqi} AQI)`;
-  if (aqi <= 40) return `fair (${aqi} AQI)`;
-  if (aqi <= 60) return `moderate (${aqi} AQI)`;
-  if (aqi <= 80) return `poor (${aqi} AQI)`;
-  if (aqi <= 100) return `very poor (${aqi} AQI)`;
+  if (aqi <= 20) return `good (${aqi})`;
+  if (aqi <= 40) return `fair (${aqi})`;
+  if (aqi <= 60) return `moderate (${aqi})`;
+  if (aqi <= 80) return `poor (${aqi})`;
+  if (aqi <= 100) return `very poor (${aqi})`;
 
-  return `extremely poor (${aqi} AQI)`;
+  return `extremely poor (${aqi})`;
 }
 
   $("#hero-uv").text(getUvLevel(weather.current.uv_index));
