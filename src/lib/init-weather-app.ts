@@ -122,20 +122,19 @@ function updateDailyUI(daily: DailyForecast[]): void {
 
       $card.css("cursor", "pointer");
 
-      // Smoothly toggle highlight using fine borders instead of breaking background layers
-      $card.off("click").on("click", function () {
+$card.off("click").on("click", function () {
         const selectedDate = $(this).attr("data-date");
         if (selectedDate) {
           updateHourlyUI(selectedDate);
-          // Reset all cards to their default component styling
+          
           $(".day-card").css({
-            border: "1px solid #eee",
-            "box-shadow": "none",
+            border: "",
+            "box-shadow": "",
           });
-          // Emphasize the active card seamlessly without shifting heights
+          
           $(this).css({
-            border: "1px solid #333",
-            "box-shadow": "inset 0 0 5px rgba(0,0,0,0.05)",
+            border: "",
+            "box-shadow": "",
           });
         }
       });
@@ -269,12 +268,11 @@ function renderWeatherCard(weather: WeatherData): void {
   updateDailyUI(dailyForecasts);
 
   // Initialize Hourly Panel state mapping 
-  if (dailyForecasts.length > 0) {
+if (dailyForecasts.length > 0) {
     updateHourlyUI(dailyForecasts[0].date);
     
-    // Clear and re-trigger initial active styling border anchor 
-    $(".day-card").css({ border: "1px solid #eee", "box-shadow": "none" });
-    $(".day-card").first().css("border", "1px solid #333");
+    $(".day-card").css({ border: "", "box-shadow": "" });
+    $(".day-card").first().css("border", "");
   }
 
   console.warn("--- Final Mapped Data ---");
