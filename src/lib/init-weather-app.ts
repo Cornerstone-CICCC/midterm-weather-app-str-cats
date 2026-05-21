@@ -227,7 +227,7 @@ function renderWeatherCard(weather: WeatherData): void {
   $("#hero-wind").text(`${weather.current.wind_speed_10m} km/h`);
   $("#hero-humidity").text(`${weather.current.relative_humidity_2m} %`);
 
-  // 3. Format Sunrise and Sunset
+  // Format Sunrise and Sunset
   const sunriseRaw = weather.daily.sunrise[0];
   const sunsetRaw = weather.daily.sunset[0];
 
@@ -240,6 +240,18 @@ function renderWeatherCard(weather: WeatherData): void {
 
   $("#hero-sunrise").text(formatTime(sunriseRaw));
   $("#hero-sunset").text(formatTime(sunsetRaw));
+
+  const nowTime = new Date(weather.current.time).getTime();
+  const sunriseTime = new Date(weather.daily.sunrise[0]).getTime();
+  const sunsetTime = new Date(weather.daily.sunset[0]).getTime();
+  const isDaytime = nowTime >= sunriseTime && nowTime < sunsetTime;
+
+  //Get the correct icon filename based on weather code and daytime status
+  const iconFilename = getWeatherIconFilename(weather.current.weather_code, isDaytime);
+
+  // Note: This path assumes the images are located in the public/assets/weather-animated/ directory
+  $("#hero-weather").attr("src", `/assets/weather-animated/${iconFilename}`);
+
 
   const conditionText = getWeatherDescription(weather.current.weather_code);
   $("#hero-condition").text(conditionText);
@@ -254,7 +266,7 @@ function renderWeatherCard(weather: WeatherData): void {
   const precipProb = weather.hourly.precipitation_probability[0];
   const snowAmt = weather.hourly.snowfall[0];
 
-  // show % and mm
+  // rain / snow for current weather card
   $("#hero-precipitation").text(`${precipProb}%`);
   $("#hero-snowfall").text(`${snowAmt}mm`);
 
@@ -524,6 +536,31 @@ export function getWeatherEmoji(code: number): string {
   if ([85, 86].includes(code)) return "🌨️";
   if (code >= 95) return "⛈️";
   return "❓";
+}
+
+/**
+ * Returns the corresponding image filename based on the weather code and day/night status.
+ * @param code - The current weather code from the Open-Meteo API
+ * @param isDay - Boolean indicating if it is currently daytime
+ * @returns The filename of the SVG weather icon
+ */
+function getWeatherIconFilename(code: number, isDay: boolean): string {
+  if (code === 0) return isDay ? "0-day.svg" : "0-night.svg";
+  if ([1, 2, 3].includes(code)) return isDay ? "1,2,3-day.svg" : "1,2,3-night.svg";
+  
+  if ([45, 48].includes(code)) return "45,48.svg";
+  if ([51, 53, 55].includes(code)) return "51,53,55.svg";
+  if ([56, 57].includes(code)) return "56,57.svg";
+  if ([61, 63, 65].includes(code)) return "61,63,65.svg";
+  if ([66, 67].includes(code)) return "66,67.svg";
+  if ([71, 73, 75].includes(code)) return "71,73,75.svg";
+  if (code === 77) return "77.svg";
+  if ([80, 81, 82].includes(code)) return "80,81,82.svg";
+  if ([85, 86].includes(code)) return "85,86.svg";
+  if ([95, 96, 99].includes(code)) return "95,96,99.svg";
+  
+  // Return clear sky as default if no match is found
+  return isDay ? "0-day.svg" : "0-night.svg";
 }
 
 /**
