@@ -11,7 +11,22 @@ import SearchBar from "../components/SearchBar.astro";
 import DayCard from "../components/DayCard.astro";
 import HoursCard from "../components/HoursCard.astro";
 
-// Pre-define mock data for initial server-side rendering setup
+import { getWeatherInfo } from "../lib/weather";
+
+// Default city: Vancouver, Canada
+const DEFAULT_CITY = {
+  name: "Vancouver",
+  latitude: 49.2827,
+  longitude: -123.1207,
+};
+
+let weatherInfo = undefined;
+try {
+  weatherInfo = await getWeatherInfo(DEFAULT_CITY.longitude, DEFAULT_CITY.latitude);
+} catch (e) {
+  weatherInfo = undefined;
+}
+
 const placeholderDaily = Array.from({ length: 5 }).map((_, i) => ({
   date: "",
   maxTemp: 0,
@@ -39,7 +54,7 @@ const placeholderDaily = Array.from({ length: 5 }).map((_, i) => ({
       <SearchBar />
     </div>
 
-    <CurrentWeather />
+    <CurrentWeather weatherInfo={weatherInfo} />
 
     <div id="daily-forecast-container">
       {placeholderDaily.map((forecast) => <DayCard forecast={forecast} />)}

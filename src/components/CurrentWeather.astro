@@ -7,9 +7,9 @@
 //   weatherInfo: WeatherData;
 // }
 
-// const { cityName, weatherInfo } = Astro.props;
-// const current = weatherInfo.current;
-// const units = weatherInfo.current_units;
+const { cityName, weatherInfo } = Astro.props;
+const current = weatherInfo && weatherInfo.current ? weatherInfo.current : null;
+const units = weatherInfo && weatherInfo.current_units ? weatherInfo.current_units : null;
 
 
 // const formattedTime = new Date(current.time).toLocaleTimeString([], { 
@@ -105,13 +105,13 @@
         <span class="text-black text-[20px] flex flex-row gap-[10px]">
           <img src="/src/assets/icons/entypo_air.svg" alt="Air Quality" class="w-24px h-24px"> Air Quality
         </span>
-        <span id="hero-air-quality" class="text-black text-[20px]">--</span>
+        <span id="hero-air-quality" class="text-black text-[20px]">-- AQI</span>
       </div>
       <div class="flex items-center flex-row justify-between py-2">
         <span class="text-black text-[20px] flex flex-row gap-[10px]">
           <img src="/src/assets/icons/mdi_uv-ray.svg" alt="UV Index" class="w-24px h-24px"> UV Index
         </span>
-        <span id="hero-uv" class="text-black text-[20px]">--</span>
+        <span id="hero-uv" class="text-black text-[20px]">{current && current.uv_index !== undefined ? current.uv_index : '--'}</span>
       </div>
     </div>
 
