@@ -202,8 +202,13 @@ function refreshStarState(): void {
     "aria-label",
     active ? "Remove this city from favorites" : "Save this city to favorites",
   );
-  $btn.toggleClass("border-amber-200/60 bg-amber-400/20 text-amber-50", active);
-  $("#favorite-star-icon").toggleClass("brightness-0 invert", active);
+  if (active) {
+    $("#fav-icon-default").addClass("hidden");
+    $("#fav-icon-active").removeClass("hidden");
+  } else {
+    $("#fav-icon-active").addClass("hidden");
+    $("#fav-icon-default").removeClass("hidden");
+  }
 }
 
 /**

@@ -3,6 +3,7 @@
 import { Image } from "astro:assets";
 
 import favDefault from "../assets/icons/fav=default.svg";
+import favClicked from "../assets/icons/fav=blue-clicked.svg";
 import mobileBg from "../assets/bg-mobile/Property 1=sunny.svg";
 import laptopBg from "../assets/bg-laptop/Property 1=sunny.svg";
 import iconUmbrella from "../assets/icons/umbrella.svg";
@@ -38,7 +39,8 @@ import footerLogo from "../assets/logo/logo=long-black.svg";
     <div class="m-4">
       <header class="relative z-20 flex items-center justify-center gap-1 mt-3">
         <button id="favorite-toggle" class="transition hover:scale-110 hover:opacity-80" aria-label="Toggle Favorite">
-          <Image src={favDefault} alt="Favorite Icon" class="h-10 w-10 object-contain" />
+          <Image id="fav-icon-default" src={favDefault} alt="Favorite Icon" class="h-10 w-10 object-contain" />
+          <Image id="fav-icon-active" src={favClicked} alt="Favorited Icon" class="hidden h-10 w-10 object-contain" />
         </button>
         <h2 id="hero-city-name" class="text-4xl font-medium tracking-tight opacity-80">Vancouver</h2>
       </header>
