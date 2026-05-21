@@ -221,7 +221,33 @@ function renderWeatherCard(weather: WeatherData): void {
   $("#hero-feels-like").text(`${weather.current.apparent_temperature}`);
   $("#hero-wind").text(`${weather.current.wind_speed_10m} km/h`);
   $("#hero-humidity").text(`${weather.current.relative_humidity_2m} %`);
-  $("#hero-uv").text(`${weather.current.uv_index}`);
+
+  function getUvLevel(uv) {
+  if (uv === null || uv === undefined) return "unknown";
+
+  if (uv <= 2) return `low (${uv})`;
+  if (uv <= 5) return `moderate (${uv})`;
+  if (uv <= 7) return `high (${uv})`;
+  if (uv <= 10) return `very-high (${uv})`;
+
+  return `extreme (${uv})`;
+}
+
+function getAirQualityLevel(aqi) {
+  if (aqi === null || aqi === undefined) return "unknown";
+
+  if (aqi <= 20) return `good (${aqi} AQI)`;
+  if (aqi <= 40) return `fair (${aqi} AQI)`;
+  if (aqi <= 60) return `moderate (${aqi} AQI)`;
+  if (aqi <= 80) return `poor (${aqi} AQI)`;
+  if (aqi <= 100) return `very poor (${aqi} AQI)`;
+
+  return `extremely poor (${aqi} AQI)`;
+}
+
+  $("#hero-uv").text(getUvLevel(weather.current.uv_index));
+
+  $("#hero-air-quality").text(getAirQualityLevel(weather.current.european_aqi));
 
   // 3. Format Sunrise and Sunset
   const sunriseRaw = weather.daily.sunrise[0];
