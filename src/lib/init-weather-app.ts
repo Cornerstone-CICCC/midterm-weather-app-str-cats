@@ -1,5 +1,7 @@
 import $ from "jquery";
 
+// * Local imports
+// - Fovorite management
 import {
 	addFavorite,
 	createFavoriteId,
@@ -7,6 +9,7 @@ import {
 	loadFavorites,
 	removeFavoriteById,
 } from "./favorites";
+// - Geolocation and place search
 import { getGeolocation } from "./geolocation";
 import {
 	formatLocationSubtitle,
@@ -14,11 +17,13 @@ import {
 	locationFromPlaceKit,
 } from "./location-format";
 import { searchPlaces } from "./placekit";
+// - Weather fetching and formatting
 import {
 	FALLBACK_CITY,
 	GEO_LOCATION_LABEL,
 	getTodayMinMax,
 } from "./weather-display";
+// - Types
 import { getWeatherInfo } from "./weather";
 import type { FavoriteCity } from "../types/favorite-city";
 import type { LocationData } from "../types/location";
@@ -369,6 +374,28 @@ function getWeatherDescription(code: number): string {
 	};
 
 	return weatherCodes[code] || "Unknown";
+}
+
+// TODO DELETE EXPORT 
+/**
+ * @function getWeatherEmoji
+ * @param {number} code - WMO weather interpretation code
+ * @description Converts WMO interpretation codes into visual weather emojis
+ */
+export function getWeatherEmoji(code: number) {
+  if (code === 0) return "☀️";
+  if ([1, 2, 3].includes(code)) return "☁️";
+  if ([45, 48].includes(code)) return "🌫️";
+  if ([51, 53, 55].includes(code)) return "🌦️";
+  if ([56, 57].includes(code)) return "❄️🌦️";
+  if ([61, 63, 65].includes(code)) return "🌧️";
+  if ([66, 67].includes(code)) return "❄️🌧️";
+  if ([71, 73, 75].includes(code)) return "❄️";
+  if (code === 77) return "🌨️";
+  if ([80, 81, 82].includes(code)) return "🌦️";
+  if ([85, 86].includes(code)) return "🌨️";
+  if (code >= 95) return "⛈️";
+  return "❓";
 }
 
 /**
