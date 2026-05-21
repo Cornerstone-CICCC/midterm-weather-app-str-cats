@@ -5,11 +5,10 @@ import { Image } from "astro:assets";
 import favDefault from "../assets/icons/fav=default.svg";
 import favClicked from "../assets/icons/fav=blue-clicked.svg";
 import mobileBg from "../assets/bg-mobile/Property 1=sunny.svg";
-import laptopBg from "../assets/bg-laptop/Property 1=sunny.svg";
+
 import iconUmbrella from "../assets/icons/umbrella.svg";
 import iconSnow from "../assets/icons/famicons_snow.svg";
 
-import footerLogo from "../assets/logo/logo=long-black.svg";
 
 
 // interface Props {
@@ -33,7 +32,7 @@ import footerLogo from "../assets/logo/logo=long-black.svg";
   
 <article class="hero-card relative flex h-170 w-full max-w-95 flex-col overflow-hidden p-9">
     
-    <Image src={mobileBg} alt="" aria-hidden="true" class="absolute inset-0 z-0 h-full w-full object-cover object-top" />
+    <img id="hero-bg" src="/assets/bg-laptop/Property 1=sunny.svg" alt="" aria-hidden="true" class="absolute inset-0 z-0 h-full w-full object-cover object-top" />
 
     <div class="m-4">
       <header class="relative z-20 flex items-center justify-center gap-1 mt-3">
@@ -74,7 +73,7 @@ import footerLogo from "../assets/logo/logo=long-black.svg";
     </div>
 
     <footer class="relative z-20 mt-auto flex flex-col items-center pb-2">
-      <Image src={footerLogo} alt="footer logo" class="h-8 w-auto opacity-90" />
+      <img id="footer-logo" src="/assets/logo/logo=long-black.svg" alt="footer logo" class="h-8 w-auto opacity-90" />
       
       <p class="text-sm tracking-wide mt-3 text-slate-600">by str Cats Studio©</p>
       

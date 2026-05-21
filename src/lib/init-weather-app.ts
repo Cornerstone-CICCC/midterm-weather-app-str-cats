@@ -254,6 +254,13 @@ function renderWeatherCard(weather: WeatherData): void {
   const catFilename = getWeatherCatFilename(weather.current.weather_code);
   $("#cat-mascot").attr("src", `/assets/cats/${catFilename}`);
 
+  // get hero card bg and logo
+  const bgFilename = getWeatherBgFilename(weather.current.weather_code);
+  $("#hero-bg").attr("src", `/assets/bg-laptop/${bgFilename}`);
+
+  const logoFilename = getWeatherLogoFilename(weather.current.weather_code);
+  $("#footer-logo").attr("src", `/assets/logo/${logoFilename}`);
+
 
   const conditionText = getWeatherDescription(weather.current.weather_code);
   $("#hero-condition").text(conditionText);
@@ -590,6 +597,36 @@ function getWeatherCatFilename(code: number): string {
 
   // Default to Sunny cat
   return "sunny.png";
+}
+
+/**
+ * Returns the corresponding background filename based on the weather code.
+ * @param code - The current weather code from the Open-Meteo API
+ * @returns The filename of the background SVG
+ */
+function getWeatherBgFilename(code: number): string {
+  // Sunny
+  if ([0, 1].includes(code)) return "Property 1=sunny.svg";
+  // Cloudy
+  if ([2, 3, 45, 48].includes(code)) return "Property 1=cloudy.svg";
+  // Rainy
+  if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(code)) return "Property 1=rainy.svg";
+  // Snowy 
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return "Property 1=Default.svg";
+  
+  return "Property 1=sunny.svg";
+}
+
+/**
+ * Returns the corresponding logo filename based on the weather code.
+ * @param code - The current weather code from the Open-Meteo API
+ * @returns The filename of the logo SVG
+ */
+function getWeatherLogoFilename(code: number): string {
+  // Sunny or Snowy -> Black Logo
+  if ([0, 1, 71, 73, 75, 77, 85, 86].includes(code)) return "logo=long-black.svg";
+  // Cloudy or Rainy -> White Logo
+  return "logo=long-white.svg";
 }
 
 /**
