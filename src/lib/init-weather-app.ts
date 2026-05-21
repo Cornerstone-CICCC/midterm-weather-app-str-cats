@@ -59,6 +59,31 @@ async function resolveInitialCity(): Promise<void> {
 	}
 }
 
+const SEARCH_RESULT_OPTION_CLASS =
+	"w-full px-4 py-2.5 text-left text-sm text-slate-950 hover:bg-slate-50 focus:bg-slate-50 focus:outline-none";
+const SEARCH_RESULT_SUBTITLE_CLASS = "block text-xs text-slate-500 mt-0.5";
+
+/**
+ * @function hideFavoriteList
+ * @description Hides the favorite cities dropdown list.
+ * @returns {void}
+ */
+function hideFavoriteList(): void {
+	$("#favorite-cities-list").addClass("hidden");
+	$("#favorite-cities-trigger").attr("aria-expanded", "false");
+}
+
+/**
+ * @function showFavoriteList
+ * @description Shows the favorite cities dropdown list.
+ * @returns {void}
+ */
+function showFavoriteList(): void {
+	if (!favoritesCache.length) return;
+	$("#favorite-cities-list").removeClass("hidden");
+	$("#favorite-cities-trigger").attr("aria-expanded", "true");
+}
+
 /**
  * @function renderFavoriteDropdown
  * @description Renders the favorite dropdown.
@@ -66,14 +91,28 @@ async function resolveInitialCity(): Promise<void> {
  */
 function renderFavoriteDropdown(): void {
 	favoritesCache = loadFavorites();
-	const $sel = $("#favorite-cities");
-	$sel.empty();
-	$("<option>", { value: "", text: "Favorite cities" }).appendTo($sel);
+	const $list = $("#favorite-cities-list");
+	$list.empty();
+	hideFavoriteList();
 	for (const fav of favoritesCache) {
-		const label = fav.subtitle
-			? `${fav.displayName} — ${fav.subtitle}`
-			: fav.displayName;
-		$("<option>", { value: fav.id, text: label }).appendTo($sel);
+		const $item = $("<li>", { role: "presentation" });
+		const $btn = $("<button>", {
+			type: "button",
+			class: SEARCH_RESULT_OPTION_CLASS,
+			role: "option",
+			"data-id": fav.id,
+		});
+		$("<span>", { class: "block font-medium", text: fav.displayName }).appendTo(
+			$btn,
+		);
+		if (fav.subtitle) {
+			$("<span>", {
+				class: SEARCH_RESULT_SUBTITLE_CLASS,
+				text: fav.subtitle,
+			}).appendTo($btn);
+		}
+		$item.append($btn);
+		$list.append($item);
 	}
 }
 
@@ -213,8 +252,7 @@ function showSearchResults(locations: LocationData[]): void {
 		const $item = $("<li>", { role: "presentation" });
 		const $btn = $("<button>", {
 			type: "button",
-			class:
-				"w-full px-4 py-2.5 text-left text-sm text-violet-950 hover:bg-violet-50 focus:bg-violet-50 focus:outline-none",
+			class: SEARCH_RESULT_OPTION_CLASS,
 			role: "option",
 		});
 		const title = getCityDisplayName(loc);
@@ -222,7 +260,7 @@ function showSearchResults(locations: LocationData[]): void {
 		$("<span>", { class: "block font-medium", text: title }).appendTo($btn);
 		if (subtitle) {
 			$("<span>", {
-				class: "block text-xs text-violet-500 mt-0.5",
+				class: SEARCH_RESULT_SUBTITLE_CLASS,
 				text: subtitle,
 			}).appendTo($btn);
 		}
@@ -282,25 +320,38 @@ function bindFavoriteToggle(): void {
 }
 
 /**
- * @function bindFavoriteSelect
- * @description Binds a change event to the favorite cities dropdown to load the weather for the selected city.
+ * @function bindFavoriteDropdown
+ * @description Binds the favorite cities trigger and list to toggle and select a city.
  * @returns {void}
  */
-function bindFavoriteSelect(): void {
-	$("#favorite-cities").on("change", function (this: HTMLSelectElement) {
-		favoritesCache = loadFavorites();
-		const id = String($(this).val());
-		if (!id) return;
-		const fav = favoritesCache.find((f) => f.id === id);
-		$(this).val("");
-		if (!fav) return;
-		selectedCity = {
-			displayName: fav.displayName,
-			subtitle: fav.subtitle ?? "",
-			latitude: fav.latitude,
-			longitude: fav.longitude,
-		};
-		void loadWeatherForSelected();
+function bindFavoriteDropdown(): void {
+	$("#favorite-cities-trigger").on("click", () => {
+		const $list = $("#favorite-cities-list");
+		if ($list.hasClass("hidden")) showFavoriteList();
+		else hideFavoriteList();
+	});
+
+	$("#favorite-cities-list").on(
+		"click",
+		'button[role="option"]',
+		function (this: HTMLButtonElement) {
+			favoritesCache = loadFavorites();
+			const id = String($(this).data("id"));
+			const fav = favoritesCache.find((f) => f.id === id);
+			hideFavoriteList();
+			if (!fav) return;
+			selectedCity = {
+				displayName: fav.displayName,
+				subtitle: fav.subtitle ?? "",
+				latitude: fav.latitude,
+				longitude: fav.longitude,
+			};
+			void loadWeatherForSelected();
+		},
+	);
+
+	$("#favorite-cities-trigger").on("keydown", (e) => {
+		if (e.key === "Escape") hideFavoriteList();
 	});
 }
 
@@ -325,16 +376,21 @@ function bindSearchInput(): void {
 }
 
 /**
- * @function bindClickOutsideSearch
- * @description Binds a click event to hide the search results when clicking outside the search input.
+ * @function bindClickOutsideDropdowns
+ * @description Hides open dropdowns when clicking outside their containers.
  * @returns {void}
  */
-function bindClickOutsideSearch(): void {
+function bindClickOutsideDropdowns(): void {
 	$(document).on("click", (e) => {
 		const target = e.target as Node;
-		const $wrap = $("#search-city-input").parent();
-		if (!$wrap.length) return;
-		if (!$wrap[0]?.contains(target)) hideSearchResults();
+		const $searchWrap = $("#search-city-input").parent();
+		if ($searchWrap.length && !$searchWrap[0]?.contains(target)) {
+			hideSearchResults();
+		}
+		const $favWrap = $("#favorite-cities-trigger").parent();
+		if ($favWrap.length && !$favWrap[0]?.contains(target)) {
+			hideFavoriteList();
+		}
 	});
 }
 
@@ -409,7 +465,7 @@ export async function initWeatherApp(): Promise<void> {
 	await loadWeatherForSelected();
 
 	bindFavoriteToggle();
-	bindFavoriteSelect();
+	bindFavoriteDropdown();
 	bindSearchInput();
-	bindClickOutsideSearch();
+	bindClickOutsideDropdowns();
 }
