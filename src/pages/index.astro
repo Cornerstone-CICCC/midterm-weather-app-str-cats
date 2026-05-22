@@ -21,84 +21,93 @@ import { getWeatherInfo } from "../lib/weather";
 
 // Default city: Vancouver, Canada
 const DEFAULT_CITY = {
-  name: "Vancouver",
-  latitude: 49.2827,
-  longitude: -123.1207,
+	name: "Vancouver",
+	latitude: 49.2827,
+	longitude: -123.1207,
 };
 
 let weatherInfo = undefined;
 try {
-  weatherInfo = await getWeatherInfo(
-    DEFAULT_CITY.longitude,
-    DEFAULT_CITY.latitude,
-  );
+	weatherInfo = await getWeatherInfo(
+		DEFAULT_CITY.longitude,
+		DEFAULT_CITY.latitude,
+	);
 } catch (e) {
-  weatherInfo = undefined;
+	weatherInfo = undefined;
 }
 
 const placeholderDaily = Array.from({ length: 5 }).map((_, i) => ({
-  date: "",
-  maxTemp: 0,
-  minTemp: 0,
-  weatherCode: 0,
+	date: "",
+	maxTemp: 0,
+	minTemp: 0,
+	weatherCode: 0,
 }));
 ---
 
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>StrCats Weather</title>
-  </head>
-  <body id="background-image" class="grid grid-cols-3 gap-4 min-h-screen pt-8 px-15 bg-cover bg-center bg-no-repeat bg-fixed transition-all duration-500" style="background-image: url('/assets/bg-byTime/Day.svg');">
-    <!-- <h1 class="">Weather Forecast</h1> -->
-    <header class="flex flex-col flex-1  h-full">
-      <CurrentWeather />
-    </header>
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>StrCats Weather</title>
+	</head>
+	<body
+		id="background-image"
+		class="grid grid-cols-3 gap-4 min-h-screen pt-8 px-15 bg-cover bg-center bg-no-repeat bg-fixed transition-all duration-500"
+		style="background-image: url('/assets/bg-byTime/Day.svg');"
+	>
+		<!-- <h1 class="">Weather Forecast</h1> -->
+		<header class="flex flex-col flex-1 h-full">
+			<CurrentWeather />
+		</header>
 
-    <section class="flex flex-col gap-6 flex-1 h-full">
-      <!--  > Favourite Cities Dropdown -->
-      <FavCitiesDropdown />
-      <!-- > 5 Day Forecast -->
-      <div class="max-w-150 w-full mt-6 bg-white rounded-3xl p-5 shadow-sm">
-        <h3 class="text-xs font-black text-gray-700 tracking-tight mb-4 ml-2">
-          5-Day Forecast
-        </h3>
+		<section class="flex flex-col gap-6 flex-1 h-full">
+			<!--  > Favourite Cities Dropdown -->
+			<FavCitiesDropdown />
+			<!-- > 5 Day Forecast -->
+			<div class="max-w-150 w-full mt-6 bg-white rounded-3xl p-5 shadow-sm">
+				<h3 class="text-xs font-black text-gray-700 tracking-tight mb-4 ml-2">
+					5-Day Forecast
+				</h3>
 
-        <div
-          id="daily-forecast-container"
-          class="flex flex-col md:flex-row items-stretch w-full overflow-hidden border-none divide-none"
-        >
-          {placeholderDaily.map((forecast) => <DayCard forecast={forecast} />)}
-        </div>
-      </div>
-      <!-- > Sunrise Sunset -->
-      <SunRiseSet />
-      <!-- > Weather Details -->
-      <WeatherDetails />
-    </section>
-    <section class="h-[90%] flex flex-col ">
-      <!-- > Searchbar -->
-      <SearchBar />
-      <!-- TODO Change to upper -->
-      <!-- <h3
+				<div
+					id="daily-forecast-container"
+					class="flex flex-col md:flex-row items-stretch w-full overflow-hidden border-none divide-none"
+				>
+					{placeholderDaily.map((forecast) => <DayCard forecast={forecast} />)}
+				</div>
+			</div>
+			<!-- > Sunrise Sunset -->
+			<SunRiseSet />
+			<!-- > Weather Details -->
+			<WeatherDetails />
+		</section>
+		<section class="h-[90%] flex flex-col">
+			<p class="mb-2 pr-2 text-sm">
+				Current Location : <span id="top-location-name" class="font-bold"
+					>City Namer</span
+				>, <span id="top-date-time" class="font-bold">Mon Date, Time</span>
+			</p>
+			<!-- > Searchbar -->
+			<SearchBar />
+			<!-- TODO Change to upper -->
+			<!-- <h3
         id="hourly-title"
         style="margin-left: 12px; color: #333; margin-top: 30px;"
       >
         Hourly Forecast
       </h3> -->
-      <div id="hourly-range-container" class="flex-1 flex flex-col h-full">
-        <HoursCard />
-      </div>
-    </section>
-  </body>
+			<div id="hourly-range-container" class="flex-1 flex flex-col h-full">
+				<HoursCard />
+			</div>
+		</section>
+	</body>
 
-  <script>
-    import { initWeatherApp } from "../lib/init-weather-app";
+	<script>
+		import { initWeatherApp } from "../lib/init-weather-app";
 
-    initWeatherApp();
-  </script>
+		initWeatherApp();
+	</script>
 </html>
