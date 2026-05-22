@@ -12,11 +12,11 @@ import {
 // - Geolocation and place search
 import { getGeolocation } from "./geolocation";
 import {
-  formatLocationSubtitle,
-  getCityDisplayName,
-  locationFromPlaceKit,
-} from "./location-format";
-import { searchPlaces } from "./placekit";
+  SEARCH_RESULT_OPTION_CLASS,
+  SEARCH_RESULT_SUBTITLE_CLASS,
+} from "./search-list";
+import { bindSearchBar, hideSearchResults } from "./search-bar";
+import type { RecentSearchCity } from "./search-bar";
 // - Weather fetching and formatting
 import {
   FALLBACK_CITY,
@@ -27,7 +27,6 @@ import { mapHourly, mapDailyForecast, mapHourlyRange } from "./weather-mapper";
 // - Types
 import { getWeatherInfo } from "./weather";
 import type { FavoriteCity } from "../types/favorite-city";
-import type { LocationData } from "../types/location";
 import type {
   WeatherData,
   DailyForecast,
@@ -43,8 +42,6 @@ type SelectedCity = {
 
 let selectedCity: SelectedCity = { ...FALLBACK_CITY };
 let favoritesCache: FavoriteCity[] = loadFavorites();
-let searchDebounceId: ReturnType<typeof setTimeout> | undefined;
-
 // Application state for layout mappings
 let allHourlyData: HourlyForecast[] = [];
 
@@ -159,10 +156,6 @@ async function resolveInitialCity(): Promise<void> {
     selectedCity = { ...FALLBACK_CITY };
   }
 }
-
-const SEARCH_RESULT_OPTION_CLASS =
-  "w-full px-4 py-2.5 text-left text-sm text-slate-950 hover:bg-slate-50 focus:bg-slate-50 focus:outline-none";
-const SEARCH_RESULT_SUBTITLE_CLASS = "block text-xs text-slate-500 mt-0.5";
 
 /**
  * @function hideFavoriteList
@@ -414,76 +407,6 @@ async function loadWeatherForSelected(): Promise<void> {
 }
 
 /**
- * @function hideSearchResults
- * @description Hides the search results list.
- * @returns {void}
- */
-function hideSearchResults(): void {
-  $("#search-results").empty().addClass("hidden");
-}
-
-/**
- * @function showSearchResults
- * @description Shows the search results in the search results list.
- * @param {LocationData[]} locations - The locations to show in the search results list.
- * @returns {void}
- */
-function showSearchResults(locations: LocationData[]): void {
-  const $list = $("#search-results");
-  $list.empty();
-  if (!locations.length) {
-    $list.addClass("hidden");
-    return;
-  }
-  for (const loc of locations) {
-    const $item = $("<li>", { role: "presentation" });
-    const $btn = $("<button>", {
-      type: "button",
-      class: SEARCH_RESULT_OPTION_CLASS,
-      role: "option",
-    });
-    const title = getCityDisplayName(loc);
-    const subtitle = formatLocationSubtitle(loc);
-    $("<span>", { class: "block font-medium", text: title }).appendTo($btn);
-    if (subtitle) {
-      $("<span>", {
-        class: SEARCH_RESULT_SUBTITLE_CLASS,
-        text: subtitle,
-      }).appendTo($btn);
-    }
-    $btn.on("click", () => {
-      selectedCity = locationFromPlaceKit(loc);
-      $("#search-city-input").val("");
-      hideSearchResults();
-      void loadWeatherForSelected();
-    });
-    $item.append($btn);
-    $list.append($item);
-  }
-  $list.removeClass("hidden");
-}
-
-/**
- * @function runPlaceSearch
- * @description Runs a place search using the PlaceKit API.
- * @param {string} query - The query to search for.
- * @returns {Promise<void>} A promise that resolves when the search is complete.
- */
-async function runPlaceSearch(query: string): Promise<void> {
-  const trimmed = query.trim();
-  if (!trimmed) {
-    hideSearchResults();
-    return;
-  }
-  try {
-    const results = await searchPlaces(trimmed);
-    showSearchResults(results);
-  } catch {
-    hideSearchResults();
-  }
-}
-
-/**
  * @function bindFavoriteToggle
  * @description Binds a click event to the favorite toggle button to add or remove the current city from the favorites.
  * @returns {void}
@@ -539,26 +462,6 @@ function bindFavoriteDropdown(): void {
 
   $("#favorite-cities-trigger").on("keydown", (e) => {
     if (e.key === "Escape") hideFavoriteList();
-  });
-}
-
-/**
- * @function bindSearchInput
- * @description Binds a input event to the search input to run a place search when the user types.
- * @returns {void}
- */
-function bindSearchInput(): void {
-  $("#search-city-input").on("input", function (this: HTMLInputElement) {
-    const q = this.value;
-    if (searchDebounceId) clearTimeout(searchDebounceId);
-    searchDebounceId = setTimeout(() => {
-      void runPlaceSearch(q);
-    }, 350);
-  });
-
-  // Bind a keydown event to hide the search results when the user presses the Escape key.
-  $("#search-city-input").on("keydown", (e) => {
-    if (e.key === "Escape") hideSearchResults();
   });
 }
 
@@ -739,6 +642,11 @@ export async function initWeatherApp(): Promise<void> {
 
   bindFavoriteToggle();
   bindFavoriteDropdown();
-  bindSearchInput();
+  bindSearchBar({
+    onCitySelected: (city: RecentSearchCity) => {
+      selectedCity = city;
+      void loadWeatherForSelected();
+    },
+  });
   bindClickOutsideDropdowns();
 }
