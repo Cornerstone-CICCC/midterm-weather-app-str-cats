@@ -1,10 +1,28 @@
 ---
 // src/components/HoursCard.astro
-// This template defines the structure and layout for each hourly item.
 ---
 
-<div class="hour-item" style="display: inline-block; text-align: center; padding: 15px; min-width: 80px;">
-  <div class="hour-time" style="font-size: 0.9rem; color: #555;">-- AM</div>
-  <div class="hour-emoji" style="font-size: 1.5rem; margin: 5px 0;">❓</div>
-  <div class="hour-temp" style="font-weight: bold;">--°</div>
+<div class="bg-white/90 backdrop-blur-md border border-gray-200/60 rounded-[32px] p-5 shadow-sm max-w-[340px] w-full mt-6">
+  
+  <h3 id="hourly-title" class="text-xs font-black text-gray-700 tracking-tight mb-4 text-center">
+    3-Hour Forecast
+  </h3>
+
+  <div id="hourly-range-container" class="flex flex-col w-full divide-y divide-gray-100">
+    
+    {Array.from({ length: 8 }).map(() => (
+      <div class="hour-item flex items-center justify-between py-3 px-1 w-full">
+        
+        <div class="hour-time text-xs font-bold text-gray-500 w-12 flex-shrink-0">--:--</div>
+                
+        <div class="hour-emoji flex-1 flex items-center justify-center mx-2">
+          <div class="w-7 h-7 flex items-center justify-center">
+            </div>
+        </div>
+        
+        <div class="hour-temp text-xs font-extrabold text-gray-700 w-12 text-right flex-shrink-0">--°</div>
+      </div>
+    ))}
+
+  </div>
 </div>

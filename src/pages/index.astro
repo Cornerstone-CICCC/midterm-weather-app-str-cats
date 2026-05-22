@@ -11,6 +11,9 @@ import SearchBar from "../components/SearchBar.astro";
 import DayCard from "../components/DayCard.astro";
 import HoursCard from "../components/HoursCard.astro";
 
+import Image from "astro/components/Image.astro";
+import cloudyCat from "../assets/cats/cloudy.png"
+
 // Pre-define mock data for initial server-side rendering setup
 const placeholderDaily = Array.from({ length: 5 }).map((_, i) => ({
   date: "",
@@ -44,9 +47,15 @@ const placeholderDaily = Array.from({ length: 5 }).map((_, i) => ({
     <!-- > Current Weather Card -->
     <CurrentWeather />
 
-    <div id="daily-forecast-container">
-      {placeholderDaily.map((forecast) => <DayCard forecast={forecast} />)}
-    </div>
+<div class="max-w-[600px] w-full mt-6 bg-white rounded-[24px] p-5 shadow-sm">
+  <h3 class="text-xs font-black text-gray-700 tracking-tight mb-4 ml-2">
+    5-Day Forecast
+  </h3>
+  
+  <div id="daily-forecast-container" class="flex flex-col md:flex-row items-stretch w-full overflow-hidden border-none divide-none">
+    {placeholderDaily.map((forecast) => <DayCard forecast={forecast} />)}
+  </div>
+</div>
 
     <h3
       id="hourly-title"
@@ -56,7 +65,7 @@ const placeholderDaily = Array.from({ length: 5 }).map((_, i) => ({
     </h3>
 
     <div id="hourly-range-container">
-      {Array.from({ length: 8 }).map(() => <HoursCard />)}
+       <HoursCard />
     </div>
   </body>
 
