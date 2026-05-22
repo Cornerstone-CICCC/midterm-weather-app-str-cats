@@ -21,7 +21,7 @@ export function getGeolocation(): Promise<GeolocationData> {
         });
       },
       (error: GeolocationPositionError) => reject(error),
-      { timeout: 10000 },
+      { timeout: 4000, enableHighAccuracy: false, maximumAge: 300000 },
     );
   });
 }
