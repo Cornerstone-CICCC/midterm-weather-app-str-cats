@@ -9,7 +9,7 @@ interface Props {
 const { forecast } = Astro.props;
 ---
 
-<div class="day-card flex-1 flex md:flex-col items-center justify-between p-4 cursor-pointer transition-all duration-150 text-center [&.active]:bg-gray-100 shadow-black/50 &.active]:shadow-inner border-none! [&.active]:rounded-[24px]" data-date={forecast.date}>
+<div class="day-card flex-1 flex md:flex-col rounded-2xl items-center justify-between p-4 cursor-pointer" data-date={forecast.date}>
   
   <div class="day-name text-center text-xs font-black text-gray-700 tracking-tight mb-2">
     <span class="block font-bold">--</span>
