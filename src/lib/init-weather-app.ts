@@ -68,8 +68,9 @@ function updateHourlyUI(targetDate: string): void {
 
     if (data) {
       const timeLabel = new Date(data.time).toLocaleTimeString("en-US", {
-        hour: "numeric",
-        hour12: true,
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
       });
       const emoji = getWeatherEmoji(data.weatherCode);
 
@@ -305,8 +306,9 @@ function getAirQualityLevel(aqi) {
 
   const formatTime = (timeString: string) => {
     return new Date(timeString).toLocaleTimeString([], {
-      hour: "numeric",
+      hour: "2-digit",
       minute: "2-digit",
+      hour12: false,
     });
   };
 
@@ -543,7 +545,7 @@ export function getWeatherEmoji(code: number): string {
   else if ([85, 86].includes(code)) assetName = "85,86.svg";
   else if (code >= 95) assetName = "95,96,99.svg";
 
-  return `<img src="../src/assets/weather-static/${assetName}" alt="Weather Icon" class="w-7 h-7 object-contain object-center" />`;
+  return `<img src="../src/assets/weather-static/${assetName}" alt="Weather Icon" class="w-14 h-14 object-contain object-center" />`;
 }
 
 /**
