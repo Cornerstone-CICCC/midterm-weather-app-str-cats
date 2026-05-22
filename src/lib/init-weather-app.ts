@@ -53,9 +53,9 @@ let allHourlyData: HourlyForecast[] = [];
 function updateHourlyUI(targetDate: string): void {
   const $hourlyTitle = $("#hourly-title");
   const titleDate = new Date(targetDate.replace(/-/g, "/"));
-  $hourlyTitle.text(
-    `${titleDate.toLocaleDateString("en-US", { weekday: "short", month: "numeric", day: "numeric" })} Hourly Forecast`,
-  );
+  // $hourlyTitle.text(
+  //   `${titleDate.toLocaleDateString("en-US", { weekday: "short", month: "numeric", day: "numeric" })} Hourly Forecast`,
+  // );
 
   const filteredHourly = allHourlyData.filter((item) =>
     item.time.startsWith(targetDate),
@@ -322,9 +322,11 @@ function getAirQualityLevel(aqi) {
 
   $("#top-location-name").text(selectedCity.displayName);
   
-  const topDateString = new Date(weather.current.time).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  const topTimeString = new Date(weather.current.time).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  const topDateString = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const topTimeString = new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
   $("#top-date-time").text(`${topDateString}, ${topTimeString}`);
+  console.log(topTimeString);
+  
 
   //Get the weather icon 
   const iconFilename = getWeatherIconFilename(weather.current.weather_code, isDaytime);
