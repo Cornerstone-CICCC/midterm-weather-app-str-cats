@@ -46,6 +46,30 @@ let favoritesCache: FavoriteCity[] = loadFavorites();
 let allHourlyData: HourlyForecast[] = [];
 
 /**
+ * @function showLoading
+ * @description Displays the global loading screen by removing opacity and pointer event restrictions.
+ */
+function showLoading(): void {
+  const $loader = $("#global-loading-screen");
+  $loader.removeClass("hidden opacity-0").addClass("flex opacity-100");
+}
+
+/**
+ * @function hideLoading
+ * @description Hides the global loading screen by adding opacity and pointer event restrictions
+ * for a smooth transition.
+ */
+function hideLoading(): void {
+  console.log("out!!!!!!!!!!!!!!!!!!");
+  const $loader = $("#global-loading-screen");
+  $loader.removeClass("opacity-100").addClass("opacity-0");
+
+  setTimeout(() => {
+    $loader.removeClass("flex").addClass("hidden");
+  }, 500);
+}
+
+/**
  * @function updateHourlyUI
  * @param {string} targetDate - The date string (YYYY-MM-DD) to filter hourly data for
  * @description Dynamically updates the pre-rendered HoursCard elements with filtered data
@@ -83,7 +107,6 @@ function updateHourlyUI(targetDate: string): void {
     }
   });
 }
-
 
 /** Highlight the clicked day card; remove highlight from the others. */
 function setActiveDayCard($activeCard: JQuery<HTMLElement>): void {
@@ -128,7 +151,7 @@ function updateDailyUI(daily: DailyForecast[]): void {
 
       $card.css("cursor", "pointer");
 
-$card.off("click").on("click", function () {
+      $card.off("click").on("click", function () {
         const selectedDate = $(this).attr("data-date");
         if (selectedDate) {
           updateHourlyUI(selectedDate);
@@ -269,32 +292,31 @@ function renderWeatherCard(weather: WeatherData): void {
   $("#hero-humidity").text(`${weather.current.relative_humidity_2m} %`);
 
   function getUvLevel(uv) {
-  if (uv === null || uv === undefined) return "unknown";
+    if (uv === null || uv === undefined) return "unknown";
 
-  if (uv <= 2) return `low (${uv})`;
-  if (uv <= 5) return `moderate (${uv})`;
-  if (uv <= 7) return `high (${uv})`;
-  if (uv <= 10) return `very-high (${uv})`;
+    if (uv <= 2) return `low (${uv})`;
+    if (uv <= 5) return `moderate (${uv})`;
+    if (uv <= 7) return `high (${uv})`;
+    if (uv <= 10) return `very-high (${uv})`;
 
-  return `extreme (${uv})`;
-}
+    return `extreme (${uv})`;
+  }
 
-function getAirQualityLevel(aqi) {
-  if (aqi === null || aqi === undefined) return "unknown";
+  function getAirQualityLevel(aqi) {
+    if (aqi === null || aqi === undefined) return "unknown";
 
-  if (aqi <= 20) return `good (${aqi})`;
-  if (aqi <= 40) return `fair (${aqi})`;
-  if (aqi <= 60) return `moderate (${aqi})`;
-  if (aqi <= 80) return `poor (${aqi})`;
-  if (aqi <= 100) return `very poor (${aqi})`;
+    if (aqi <= 20) return `good (${aqi})`;
+    if (aqi <= 40) return `fair (${aqi})`;
+    if (aqi <= 60) return `moderate (${aqi})`;
+    if (aqi <= 80) return `poor (${aqi})`;
+    if (aqi <= 100) return `very poor (${aqi})`;
 
-  return `extremely poor (${aqi})`;
-}
+    return `extremely poor (${aqi})`;
+  }
 
   $("#hero-uv").text(getUvLevel(weather.current.uv_index));
 
   $("#hero-air-quality").text(getAirQualityLevel(weather.current.european_aqi));
-
 
   $("#hero-uv").text(getUvLevel(weather.current.uv_index));
 
@@ -321,15 +343,24 @@ function getAirQualityLevel(aqi) {
   const isDaytime = nowTime >= sunriseTime && nowTime < sunsetTime;
 
   $("#top-location-name").text(selectedCity.displayName);
-  
-  const topDateString = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  const topTimeString = new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
+
+  const topDateString = new Date().toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+  const topTimeString = new Date().toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
   $("#top-date-time").text(`${topDateString}, ${topTimeString}`);
   console.log(topTimeString);
-  
 
-  //Get the weather icon 
-  const iconFilename = getWeatherIconFilename(weather.current.weather_code, isDaytime);
+  //Get the weather icon
+  const iconFilename = getWeatherIconFilename(
+    weather.current.weather_code,
+    isDaytime,
+  );
   $("#hero-weather").attr("src", `/assets/weather-animated/${iconFilename}`);
 
   // Get the cat mascot
@@ -345,7 +376,10 @@ function getAirQualityLevel(aqi) {
 
   // bg
   const globalBgFilename = isDaytime ? "Day.svg" : "Night.svg";
-  $("body").css("background-image", `url('/assets/bg-byTime/${globalBgFilename}')`);
+  $("body").css(
+    "background-image",
+    `url('/assets/bg-byTime/${globalBgFilename}')`,
+  );
 
   const conditionText = getWeatherDescription(weather.current.weather_code);
   $("#hero-condition").text(conditionText);
@@ -379,8 +413,8 @@ function getAirQualityLevel(aqi) {
   // Update Daily Cards
   updateDailyUI(dailyForecasts);
 
-  // Initialize Hourly Panel state mapping 
-if (dailyForecasts.length > 0) {
+  // Initialize Hourly Panel state mapping
+  if (dailyForecasts.length > 0) {
     updateHourlyUI(dailyForecasts[0].date);
     setActiveDayCard($(".day-card").first());
   }
@@ -567,8 +601,9 @@ export function getWeatherEmoji(code: number): string {
  */
 function getWeatherIconFilename(code: number, isDay: boolean): string {
   if (code === 0) return isDay ? "0-day.svg" : "0-night.svg";
-  if ([1, 2, 3].includes(code)) return isDay ? "1,2,3-day.svg" : "1,2,3-night.svg";
-  
+  if ([1, 2, 3].includes(code))
+    return isDay ? "1,2,3-day.svg" : "1,2,3-night.svg";
+
   if ([45, 48].includes(code)) return "45,48.svg";
   if ([51, 53, 55].includes(code)) return "51,53,55.svg";
   if ([56, 57].includes(code)) return "56,57.svg";
@@ -579,7 +614,7 @@ function getWeatherIconFilename(code: number, isDay: boolean): string {
   if ([80, 81, 82].includes(code)) return "80,81,82.svg";
   if ([85, 86].includes(code)) return "85,86.svg";
   if ([95, 96, 99].includes(code)) return "95,96,99.svg";
-  
+
   // Return clear sky as default if no match is found
   return isDay ? "0-day.svg" : "0-night.svg";
 }
@@ -597,12 +632,27 @@ function getWeatherCatFilename(code: number): string {
   if ([2, 3, 45, 48].includes(code)) return "cloudy.png";
 
   // Rainy / Showers / Thunderstorms / Wet Weather
-  if ([
-    51, 53, 55, 56, 57, // Drizzle
-    61, 63, 65, 66, 67, // Rain
-    80, 81, 82,         // Rain showers
-    95, 96, 99          // Thunderstorm
-  ].includes(code)) return "rainy.png";
+  if (
+    [
+      51,
+      53,
+      55,
+      56,
+      57, // Drizzle
+      61,
+      63,
+      65,
+      66,
+      67, // Rain
+      80,
+      81,
+      82, // Rain showers
+      95,
+      96,
+      99, // Thunderstorm
+    ].includes(code)
+  )
+    return "rainy.png";
 
   // Snowy / Sleet / Freezing Weather
   if ([71, 73, 75, 77, 85, 86].includes(code)) return "snowy.png";
@@ -622,10 +672,15 @@ function getWeatherBgFilename(code: number): string {
   // Cloudy
   if ([2, 3, 45, 48].includes(code)) return "Property 1=cloudy.svg";
   // Rainy
-  if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(code)) return "Property 1=rainy.svg";
-  // Snowy 
+  if (
+    [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(
+      code,
+    )
+  )
+    return "Property 1=rainy.svg";
+  // Snowy
   if ([71, 73, 75, 77, 85, 86].includes(code)) return "Property 1=Default.svg";
-  
+
   return "Property 1=sunny.svg";
 }
 
@@ -636,30 +691,51 @@ function getWeatherBgFilename(code: number): string {
  */
 function getWeatherLogoFilename(code: number): string {
   // Sunny or Snowy -> Black Logo
-  if ([0, 1, 71, 73, 75, 77, 85, 86].includes(code)) return "logo=long-black.svg";
+  if ([0, 1, 71, 73, 75, 77, 85, 86].includes(code))
+    return "logo=long-black.svg";
   // Cloudy or Rainy -> White Logo
   return "logo=long-white.svg";
 }
-
-
 
 /**
  * Wire StrCats Weather UI to PlaceKit, Open-Meteo, and favorites (localStorage).
  * Call once on DOM ready (see index.astro).
  */
 export async function initWeatherApp(): Promise<void> {
-  await resolveInitialCity();
-  renderFavoriteDropdown();
-  refreshStarState();
-  await loadWeatherForSelected();
+  // 1. Encendemos el loader inmediatamente al abrir la web
+  showLoading();
 
-  bindFavoriteToggle();
-  bindFavoriteDropdown();
-  bindSearchBar({
-    onCitySelected: (city: RecentSearchCity) => {
-      selectedCity = city;
-      void loadWeatherForSelected();
-    },
-  });
-  bindClickOutsideDropdowns();
+  try {
+    // 2. Intentamos geolocalizar (máximo 4s de espera gracias al cambio anterior)
+    await resolveInitialCity();
+
+    // 3. Montamos los componentes de favoritos con la ciudad resuelta
+    renderFavoriteDropdown();
+    refreshStarState();
+
+    // 4. Mandamos a pedir el clima y a renderizar las tarjetas
+    await loadWeatherForSelected();
+
+    // 5. Escuchamos las interacciones del usuario
+    bindFavoriteToggle();
+    bindFavoriteDropdown();
+    bindClickOutsideDropdowns();
+
+    // 6. Buscador dinámico: Aquí controlamos el loader de forma local para las búsquedas
+    bindSearchBar({
+      onCitySelected: async (city: RecentSearchCity) => {
+        selectedCity = city;
+        showLoading(); // Muestra el loader al cambiar de ciudad
+        await loadWeatherForSelected();
+        hideLoading(); // Lo oculta al terminar de renderizar la nueva ciudad
+      },
+    });
+  } catch (error) {
+    console.error("Error crítico en el arranque de StrCats Weather:", error);
+  } finally {
+    // 7. ¡Garantía absoluta! Se apaga el loader inicial
+    setTimeout(() => {
+      hideLoading();
+    }, 300);
+  }
 }
