@@ -250,8 +250,13 @@ function refreshStarState(): void {
     "aria-label",
     active ? "Remove this city from favorites" : "Save this city to favorites",
   );
-  $btn.toggleClass("border-amber-200/60 bg-amber-400/20 text-amber-50", active);
-  $("#favorite-star-icon").toggleClass("brightness-0 invert", active);
+  if (active) {
+    $("#fav-icon-default").addClass("hidden");
+    $("#fav-icon-active").removeClass("hidden");
+  } else {
+    $("#fav-icon-active").addClass("hidden");
+    $("#fav-icon-default").removeClass("hidden");
+  }
 }
 
 /**
@@ -297,7 +302,12 @@ function getAirQualityLevel(aqi) {
 
   $("#hero-air-quality").text(getAirQualityLevel(weather.current.european_aqi));
 
-  // 3. Format Sunrise and Sunset
+
+  $("#hero-uv").text(getUvLevel(weather.current.uv_index));
+
+  $("#hero-air-quality").text(getAirQualityLevel(weather.current.european_aqi));
+
+  // Format Sunrise and Sunset
   const sunriseRaw = weather.daily.sunrise[0];
   const sunsetRaw = weather.daily.sunset[0];
 
@@ -310,6 +320,27 @@ function getAirQualityLevel(aqi) {
 
   $("#hero-sunrise").text(formatTime(sunriseRaw));
   $("#hero-sunset").text(formatTime(sunsetRaw));
+
+  const nowTime = new Date(weather.current.time).getTime();
+  const sunriseTime = new Date(weather.daily.sunrise[0]).getTime();
+  const sunsetTime = new Date(weather.daily.sunset[0]).getTime();
+  const isDaytime = nowTime >= sunriseTime && nowTime < sunsetTime;
+
+  //Get the weather icon 
+  const iconFilename = getWeatherIconFilename(weather.current.weather_code, isDaytime);
+  $("#hero-weather").attr("src", `/assets/weather-animated/${iconFilename}`);
+
+  // Get the cat mascot
+  const catFilename = getWeatherCatFilename(weather.current.weather_code);
+  $("#cat-mascot").attr("src", `/assets/cats/${catFilename}`);
+
+  // get hero card bg and logo
+  const bgFilename = getWeatherBgFilename(weather.current.weather_code);
+  $("#hero-bg").attr("src", `/assets/bg-laptop/${bgFilename}`);
+
+  const logoFilename = getWeatherLogoFilename(weather.current.weather_code);
+  $("#footer-logo").attr("src", `/assets/logo/${logoFilename}`);
+
 
   const conditionText = getWeatherDescription(weather.current.weather_code);
   $("#hero-condition").text(conditionText);
@@ -324,7 +355,7 @@ function getAirQualityLevel(aqi) {
   const precipProb = weather.hourly.precipitation_probability[0];
   const snowAmt = weather.hourly.snowfall[0];
 
-  // show % and mm
+  // rain / snow for current weather card
   $("#hero-precipitation").text(`${precipProb}%`);
   $("#hero-snowfall").text(`${snowAmt}mm`);
 
@@ -614,6 +645,90 @@ export function getWeatherEmoji(code: number): string {
 
   return `<img src="../src/assets/weather-static/${assetName}" alt="Weather Icon" class="w-7 h-7 object-contain object-center" />`;
 }
+
+/**
+ * Returns the corresponding image filename based on the weather code and day/night status.
+ * @param code - The current weather code from the Open-Meteo API
+ * @param isDay - Boolean indicating if it is currently daytime
+ * @returns The filename of the SVG weather icon
+ */
+function getWeatherIconFilename(code: number, isDay: boolean): string {
+  if (code === 0) return isDay ? "0-day.svg" : "0-night.svg";
+  if ([1, 2, 3].includes(code)) return isDay ? "1,2,3-day.svg" : "1,2,3-night.svg";
+  
+  if ([45, 48].includes(code)) return "45,48.svg";
+  if ([51, 53, 55].includes(code)) return "51,53,55.svg";
+  if ([56, 57].includes(code)) return "56,57.svg";
+  if ([61, 63, 65].includes(code)) return "61,63,65.svg";
+  if ([66, 67].includes(code)) return "66,67.svg";
+  if ([71, 73, 75].includes(code)) return "71,73,75.svg";
+  if (code === 77) return "77.svg";
+  if ([80, 81, 82].includes(code)) return "80,81,82.svg";
+  if ([85, 86].includes(code)) return "85,86.svg";
+  if ([95, 96, 99].includes(code)) return "95,96,99.svg";
+  
+  // Return clear sky as default if no match is found
+  return isDay ? "0-day.svg" : "0-night.svg";
+}
+
+/**
+ * Returns the corresponding cat mascot filename based on the weather code.
+ * @param code - The current weather code from the Open-Meteo API
+ * @returns The filename of the cat mascot image (assuming they are placed in public/assets/)
+ */
+function getWeatherCatFilename(code: number): string {
+  // Sunny / Clear / slightly cloudy
+  if ([0, 1].includes(code)) return "sunny.png";
+
+  // Cloudy / Foggy
+  if ([2, 3, 45, 48].includes(code)) return "cloudy.png";
+
+  // Rainy / Showers / Thunderstorms / Wet Weather
+  if ([
+    51, 53, 55, 56, 57, // Drizzle
+    61, 63, 65, 66, 67, // Rain
+    80, 81, 82,         // Rain showers
+    95, 96, 99          // Thunderstorm
+  ].includes(code)) return "rainy.png";
+
+  // Snowy / Sleet / Freezing Weather
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return "snowy.png";
+
+  // Default to Sunny cat
+  return "sunny.png";
+}
+
+/**
+ * Returns the corresponding background filename based on the weather code.
+ * @param code - The current weather code from the Open-Meteo API
+ * @returns The filename of the background SVG
+ */
+function getWeatherBgFilename(code: number): string {
+  // Sunny
+  if ([0, 1].includes(code)) return "Property 1=sunny.svg";
+  // Cloudy
+  if ([2, 3, 45, 48].includes(code)) return "Property 1=cloudy.svg";
+  // Rainy
+  if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(code)) return "Property 1=rainy.svg";
+  // Snowy 
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return "Property 1=Default.svg";
+  
+  return "Property 1=sunny.svg";
+}
+
+/**
+ * Returns the corresponding logo filename based on the weather code.
+ * @param code - The current weather code from the Open-Meteo API
+ * @returns The filename of the logo SVG
+ */
+function getWeatherLogoFilename(code: number): string {
+  // Sunny or Snowy -> Black Logo
+  if ([0, 1, 71, 73, 75, 77, 85, 86].includes(code)) return "logo=long-black.svg";
+  // Cloudy or Rainy -> White Logo
+  return "logo=long-white.svg";
+}
+
+
 
 /**
  * Wire StrCats Weather UI to PlaceKit, Open-Meteo, and favorites (localStorage).

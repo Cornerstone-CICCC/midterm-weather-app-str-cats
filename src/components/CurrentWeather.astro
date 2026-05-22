@@ -1,5 +1,14 @@
 ---
 // import type { WeatherData } from '../types/weather';
+import { Image } from "astro:assets";
+
+import favDefault from "../assets/icons/fav=default.svg";
+import favClicked from "../assets/icons/fav=blue-clicked.svg";
+import mobileBg from "../assets/bg-mobile/Property 1=sunny.svg";
+
+import iconUmbrella from "../assets/icons/umbrella.svg";
+import iconSnow from "../assets/icons/famicons_snow.svg";
+
 
 
 // interface Props {
@@ -33,59 +42,62 @@
 
 <section class="current-weather-section flex gap-6">
   
-<article class="hero-card relative w-80 rounded-[40px] bg-green-300 p-6 flex flex-col">
-  
-  <header class="relative z-10 flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <button id="favorite-toggle" class="p-2 hover:opacity-80 transition" aria-label="Toggle Favorite">
-      ⭐
-    </button>
-      <h2 id="hero-city-name" class="font-bold text-gray-900">Vancouver</h2>
-    </div>
-  </header>
-
-  <div class="flex items-center justify-between mt-6">
+<article class="hero-card relative flex h-170 w-full max-w-95 flex-col overflow-hidden p-9">
     
-    <div class="flex flex-col">
-      <h1 class="text-6xl font-bold text-gray-900 tracking-tighter">
-        <span id="hero-temp-main">--</span>
-      </h1>
-      
-      <div class="flex items-center gap-3 mt-2 text-sm font-medium text-gray-800">
-        <span class="flex items-center gap-1">
-          ☂️ <span id="hero-precipitation">--</span>
-        </span>
-        <span class="text-gray-400">|</span>
-        <span class="flex items-center gap-1">
-          ❄️ <span id="hero-snowfall">--</span>
-        </span>
+    <img id="hero-bg" src="/assets/bg-laptop/Property 1=sunny.svg" alt="" aria-hidden="true" class="absolute inset-0 z-0 h-full w-full object-cover object-top" />
+
+    <div class="m-4">
+      <header class="relative z-20 flex items-center justify-center gap-1 mt-3">
+        <button id="favorite-toggle" class="transition hover:scale-110 hover:opacity-80" aria-label="Toggle Favorite">
+          <Image id="fav-icon-default" src={favDefault} alt="Favorite Icon" class="h-10 w-10 object-contain" />
+          <Image id="fav-icon-active" src={favClicked} alt="Favorited Icon" class="hidden h-10 w-10 object-contain" />
+        </button>
+        <h2 id="hero-city-name" class="text-4xl font-medium tracking-tight opacity-80">Vancouver</h2>
+      </header>
+
+      <div class="relative z-20 mt-4 flex items-center justify-between">
+        <div class="flex flex-col">
+          <h1 class="text-6xl font-semibold tracking-tighter opacity-80">
+            <span id="hero-temp-main">18</span><span class="text-4xl text-slate-700"></span>
+          </h1>
+          
+          <div class="mt-2 flex items-center gap-3 text-base opacity-80">
+            <span class="flex items-center gap-1">
+              <Image src={iconUmbrella} class="h-4 w-4 opacity-80" alt="Rain" />
+              <span id="hero-precipitation">10%</span>
+            </span>
+            <span class="text-slate-400">|</span>
+            <span class="flex items-center gap-1">
+              <Image src={iconSnow} class="h-4 w-4 opacity-80" alt="Snow" />
+              <span id="hero-snowfall">10%</span>
+            </span>
+          </div>
+        </div>
+        
+        <div class="h-30 w-30 shrink-0 drop-shadow-md">
+          <img id="hero-weather" src="" alt="Current Weather" class="h-full w-full object-contain" />
+        </div>
       </div>
     </div>
-    
-    <div class="">
-      <img id="hero-weather-cat" src="/assets/cloud-snow.svg" alt="Current Weather" class="w-full h-full object-contain" />
+
+    <div class="absolute bottom-36 left-1/2 w-64 -translate-x-1/2 z-10 pointer-events-none">
+      <img id="cat-mascot" src="" alt="Str Cats Mascot" class="h-auto w-full object-contain drop-shadow-xl" />
     </div>
-  </div>
 
-  <div class="">
-    <img src="/assets/cat-sunglasses.png" alt="Str Cats Mascot" class="w-full h-auto object-contain" />
-  </div>
+    <footer class="relative z-20 mt-auto flex flex-col items-center pb-2">
+      <img id="footer-logo" src="/assets/logo/logo=long-black.svg" alt="footer logo" class="h-8 w-auto opacity-90" />
+      
+      <p class="text-sm tracking-wide mt-3 text-slate-600">by str Cats Studio©</p>
+      
+      <a href="https://github.com/Cornerstone-CICCC/midterm-weather-app-str-cats" target="_blank" class="mt-3 text-[#4A90E2] transition hover:text-blue-700">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+      </a>
+    </footer>
 
-  <footer class="relative z-10 mt-auto flex flex-col items-center text-white/90 pb-2">
-    <div class="flex items-center gap-1 font-bold text-sm">
-      <span>Weather Forecat</span>
-      <span class="text-lg leading-none">🐱</span>
-    </div>
-    <p class="text-[10px] tracking-wide mt-0.5">by str Cats Studio©</p>
-    
-    <a href="https://github.com/Cornerstone-CICCC/midterm-weather-app-str-cats" target="_blank" class="mt-2 hover:text-white transition">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
-      </svg>
-    </a>
-  </footer>
+  </article>
 
-</article>
 
   <div class="details-section flex flex-col gap-1 md:gap-3 w-full justify-center">
     
