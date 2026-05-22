@@ -16,6 +16,7 @@ export type SearchListItem = {
   onSelect: () => void;
 };
 
+/** Append a search list option to the given list. */
 export function appendSearchListOption(
   $list: JQuery<HTMLElement>,
   item: SearchListItem,
@@ -58,6 +59,7 @@ export function appendSearchListOption(
   $list.append($item);
 }
 
+/** Show the search list with the given items. */
 export function showSearchList(items: SearchListItem[]): void {
   const $list = $("#search-results");
   $list.empty();
