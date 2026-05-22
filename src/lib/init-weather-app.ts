@@ -1,20 +1,13 @@
 import $ from "jquery";
 
 // * Local imports
-// - Fovorite management
 import {
-  addFavorite,
-  createFavoriteId,
-  isFavorite,
-  loadFavorites,
-  removeFavoriteById,
-} from "./favorites";
-// - Geolocation and place search
+  bindFavorites,
+  hideFavoriteList,
+  refreshFavoriteStar,
+  renderFavoriteDropdown,
+} from "./favorites-dropdown";
 import { getGeolocation } from "./geolocation";
-import {
-  SEARCH_RESULT_OPTION_CLASS,
-  SEARCH_RESULT_SUBTITLE_CLASS,
-} from "./search-list";
 import { bindSearchBar, hideSearchResults } from "./search-bar";
 import type { RecentSearchCity } from "./search-bar";
 // - Weather fetching and formatting
@@ -26,7 +19,6 @@ import {
 import { mapHourly, mapDailyForecast, mapHourlyRange } from "./weather-mapper";
 // - Types
 import { getWeatherInfo } from "./weather";
-import type { FavoriteCity } from "../types/favorite-city";
 import type {
   WeatherData,
   DailyForecast,
@@ -41,7 +33,6 @@ type SelectedCity = {
 };
 
 let selectedCity: SelectedCity = { ...FALLBACK_CITY };
-let favoritesCache: FavoriteCity[] = loadFavorites();
 // Application state for layout mappings
 let allHourlyData: HourlyForecast[] = [];
 
@@ -158,97 +149,12 @@ async function resolveInitialCity(): Promise<void> {
   }
 }
 
-/**
- * @function hideFavoriteList
- * @description Hides the favorite cities dropdown list.
- * @returns {void}
- */
-function hideFavoriteList(): void {
-  $("#favorite-cities-list").addClass("hidden");
-  $("#favorite-cities-trigger").attr("aria-expanded", "false");
-}
-
-/**
- * @function showFavoriteList
- * @description Shows the favorite cities dropdown list.
- * @returns {void}
- */
-function showFavoriteList(): void {
-  // if (!favoritesCache.length) return;
-  $("#favorite-cities-list").removeClass("hidden");
-  $("#favorite-cities-trigger").attr("aria-expanded", "true");
-}
-
-/**
- * @function renderFavoriteDropdown
- * @description Renders the favorite dropdown.
- * @returns {void}
- */
-function renderFavoriteDropdown(): void {
-  favoritesCache = loadFavorites();
-  const $list = $("#favorite-cities-list");
-  $list.empty();
-  hideFavoriteList();
-  if (!favoritesCache.length) {
-    console.log("enter");
-    $list.append(
-      $("<li>", {
-        class: "px-4 py-2 text-sm text-slate-500",
-        text: "No favorites yet",
-      }),
-    );
-    return;
-  }
-  for (const fav of favoritesCache) {
-    const $item = $("<li>", { role: "presentation" });
-    const $btn = $("<button>", {
-      type: "button",
-      class: SEARCH_RESULT_OPTION_CLASS,
-      role: "option",
-      "data-id": fav.id,
-    });
-    $("<span>", { class: "block font-medium", text: fav.displayName }).appendTo(
-      $btn,
-    );
-    if (fav.subtitle) {
-      $("<span>", {
-        class: SEARCH_RESULT_SUBTITLE_CLASS,
-        text: fav.subtitle,
-      }).appendTo($btn);
-    }
-    $item.append($btn);
-    $list.append($item);
-  }
-}
-
 function renderLocationSubtitle(): void {
   const $sub = $("#hero-location-subtitle");
   if (selectedCity.subtitle) {
     $sub.text(selectedCity.subtitle).removeClass("hidden");
   } else {
     $sub.text("").addClass("hidden");
-  }
-}
-
-/**
- * @function refreshStarState
- * @description Refreshes the state of the favorite toggle button.
- * @returns {void}
- */
-function refreshStarState(): void {
-  const active = isFavorite(selectedCity.latitude, selectedCity.longitude);
-  const $btn = $("#favorite-toggle");
-  $btn.attr("aria-pressed", active ? "true" : "false");
-  $btn.attr(
-    "aria-label",
-    active ? "Remove this city from favorites" : "Save this city to favorites",
-  );
-  if (active) {
-    $("#fav-icon-default").addClass("hidden");
-    $("#fav-icon-active").removeClass("hidden");
-  } else {
-    $("#fav-icon-active").addClass("hidden");
-    $("#fav-icon-default").removeClass("hidden");
   }
 }
 
@@ -406,7 +312,7 @@ async function loadWeatherForSelected(): Promise<void> {
       selectedCity.latitude,
     );
     renderWeatherCard(weather);
-    refreshStarState();
+    refreshFavoriteStar();
   } catch (e) {
     const message = e instanceof Error ? e.message : "Could not load weather.";
     $status.removeClass("hidden").text(message);
@@ -415,67 +321,8 @@ async function loadWeatherForSelected(): Promise<void> {
     $("#hero-rain-value").text("—");
     $("#hero-snow-value").text("—");
     renderLocationSubtitle();
-    refreshStarState();
+    refreshFavoriteStar();
   }
-}
-
-/**
- * @function bindFavoriteToggle
- * @description Binds a click event to the favorite toggle button to add or remove the current city from the favorites.
- * @returns {void}
- */
-function bindFavoriteToggle(): void {
-  $("#favorite-toggle").on("click", () => {
-    const id = createFavoriteId(selectedCity.latitude, selectedCity.longitude);
-    if (isFavorite(selectedCity.latitude, selectedCity.longitude)) {
-      removeFavoriteById(id);
-    } else {
-      addFavorite({
-        displayName: selectedCity.displayName,
-        subtitle: selectedCity.subtitle || undefined,
-        latitude: selectedCity.latitude,
-        longitude: selectedCity.longitude,
-      });
-    }
-    renderFavoriteDropdown();
-    refreshStarState();
-  });
-}
-
-/**
- * @function bindFavoriteDropdown
- * @description Binds the favorite cities trigger and list to toggle and select a city.
- * @returns {void}
- */
-function bindFavoriteDropdown(): void {
-  $("#favorite-cities-trigger").on("click", () => {
-    const $list = $("#favorite-cities-list");
-    if ($list.hasClass("hidden")) showFavoriteList();
-    else hideFavoriteList();
-  });
-
-  $("#favorite-cities-list").on(
-    "click",
-    'button[role="option"]',
-    function (this: HTMLButtonElement) {
-      favoritesCache = loadFavorites();
-      const id = String($(this).data("id"));
-      const fav = favoritesCache.find((f) => f.id === id);
-      hideFavoriteList();
-      if (!fav) return;
-      selectedCity = {
-        displayName: fav.displayName,
-        subtitle: fav.subtitle ?? "",
-        latitude: fav.latitude,
-        longitude: fav.longitude,
-      };
-      void loadWeatherForSelected();
-    },
-  );
-
-  $("#favorite-cities-trigger").on("keydown", (e) => {
-    if (e.key === "Escape") hideFavoriteList();
-  });
 }
 
 /**
@@ -650,11 +497,16 @@ function getWeatherLogoFilename(code: number): string {
 export async function initWeatherApp(): Promise<void> {
   await resolveInitialCity();
   renderFavoriteDropdown();
-  refreshStarState();
+  refreshFavoriteStar();
   await loadWeatherForSelected();
 
-  bindFavoriteToggle();
-  bindFavoriteDropdown();
+  bindFavorites({
+    getSelectedCity: () => selectedCity,
+    onCitySelected: (city) => {
+      selectedCity = city;
+      void loadWeatherForSelected();
+    },
+  });
   bindSearchBar({
     onCitySelected: (city: RecentSearchCity) => {
       selectedCity = city;

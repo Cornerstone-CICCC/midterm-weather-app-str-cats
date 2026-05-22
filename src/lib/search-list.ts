@@ -58,8 +58,10 @@ export function appendSearchListOption(
   $list.append($item);
 }
 
-export function showSearchList(items: SearchListItem[]): void {
-  const $list = $("#search-results");
+export function showDropdownList(
+  $list: JQuery<HTMLElement>,
+  items: SearchListItem[],
+): void {
   $list.empty();
   if (!items.length) {
     $list.addClass("hidden");
@@ -69,4 +71,8 @@ export function showSearchList(items: SearchListItem[]): void {
     appendSearchListOption($list, item);
   }
   $list.removeClass("hidden");
+}
+
+export function showSearchList(items: SearchListItem[]): void {
+  showDropdownList($("#search-results"), items);
 }
