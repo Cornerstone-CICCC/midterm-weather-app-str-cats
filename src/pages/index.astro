@@ -53,7 +53,7 @@ const placeholderDaily = Array.from({ length: 5 }).map((_, i) => ({
     <meta name="generator" content={Astro.generator} />
     <title>StrCats Weather</title>
   </head>
-  <body class="grid grid-cols-3 gap-4 min-h-screen pt-8 px-15">
+  <body id="background-image" class="grid grid-cols-3 gap-4 min-h-screen pt-8 px-15 bg-cover bg-center bg-no-repeat bg-fixed transition-all duration-500" style="background-image: url('/assets/bg-byTime/Day.svg');">
     <!-- <h1 class="">Weather Forecast</h1> -->
     <header class="flex flex-col flex-1  h-full">
       <CurrentWeather />

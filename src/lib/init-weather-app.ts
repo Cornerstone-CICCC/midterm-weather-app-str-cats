@@ -341,6 +341,9 @@ function getAirQualityLevel(aqi) {
   const logoFilename = getWeatherLogoFilename(weather.current.weather_code);
   $("#footer-logo").attr("src", `/assets/logo/${logoFilename}`);
 
+  // bg
+  const globalBgFilename = isDaytime ? "Day.svg" : "Night.svg";
+  $("body").css("background-image", `url('/assets/bg-byTime/${globalBgFilename}')`);
 
   const conditionText = getWeatherDescription(weather.current.weather_code);
   $("#hero-condition").text(conditionText);
