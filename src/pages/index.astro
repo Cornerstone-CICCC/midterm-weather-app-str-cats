@@ -14,7 +14,22 @@ import HoursCard from "../components/HoursCard.astro";
 import Image from "astro/components/Image.astro";
 import cloudyCat from "../assets/cats/cloudy.png"
 
-// Pre-define mock data for initial server-side rendering setup
+import { getWeatherInfo } from "../lib/weather";
+
+// Default city: Vancouver, Canada
+const DEFAULT_CITY = {
+  name: "Vancouver",
+  latitude: 49.2827,
+  longitude: -123.1207,
+};
+
+let weatherInfo = undefined;
+try {
+  weatherInfo = await getWeatherInfo(DEFAULT_CITY.longitude, DEFAULT_CITY.latitude);
+} catch (e) {
+  weatherInfo = undefined;
+}
+
 const placeholderDaily = Array.from({ length: 5 }).map((_, i) => ({
   date: "",
   maxTemp: 0,
@@ -44,8 +59,7 @@ const placeholderDaily = Array.from({ length: 5 }).map((_, i) => ({
       <SearchBar />
     </div>
 
-    <!-- > Current Weather Card -->
-    <CurrentWeather />
+    <CurrentWeather weatherInfo={weatherInfo} />
 
 <div class="max-w-[600px] w-full mt-6 bg-white rounded-[24px] p-5 shadow-sm">
   <h3 class="text-xs font-black text-gray-700 tracking-tight mb-4 ml-2">

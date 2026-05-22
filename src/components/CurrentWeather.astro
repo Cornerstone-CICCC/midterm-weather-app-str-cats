@@ -8,8 +8,20 @@
 // }
 
 // const { cityName, weatherInfo } = Astro.props;
-// const current = weatherInfo.current;
-// const units = weatherInfo.current_units;
+// const current = weatherInfo && weatherInfo.current ? weatherInfo.current : null;
+// const units = weatherInfo && weatherInfo.current_units ? weatherInfo.current_units : null;
+
+
+// function getUvLevel(uv: number | null | undefined): string {
+//   if (uv === null || uv === undefined) return "unknown";
+  
+//   if (uv <= 2) return `low (${uv})`;
+//   if (uv <= 5) return `moderate (${uv})`;
+//   if (uv <= 7) return `high (${uv})`;
+//   if (uv <= 10) return `very-high (${uv})`;
+  
+//   return `extreme (${uv})`;
+// }
 
 
 // const formattedTime = new Date(current.time).toLocaleTimeString([], { 
@@ -75,35 +87,45 @@
 
 </article>
 
-  <div class="details-section flex flex-col gap-4 w-80">
+  <div class="details-section flex flex-col gap-1 md:gap-3 w-full justify-center">
     
-    <div class="grid grid-cols-2 gap-4">
-      <div class="bg-white/50 rounded-2xl p-4 text-center">
-        <p class="text-sm font-bold">🌅 Sunrise</p>
-        <p id="hero-sunrise" class="text-lg font-bold">--:--</p>
+    <div class="grid grid-cols-2 gap-1 md:gap-3 justify-center">
+      <div class="bg-white/90 rounded-3xl text-center px-[24px] py-[12px] shadow-[inset_0_4px_4px_0_rgba(0,0,0,0.25)]">
+        <p class="text-black text-2xl flex flex-row align-items-center justify-center"> <img src="/src/assets/icons/Sunrise.svg" alt="Sunrise" class="w-40px h-40px">Sunrise</p>
+        <p id="hero-sunrise" class="text-black text-[32px] font-medium">--:--</p>
       </div>
-      <div class="bg-white/50 rounded-2xl p-4 text-center">
-        <p class="text-sm font-bold">🌇 Sunset</p>
-        <p id="hero-sunset" class="text-lg font-bold">--:--</p>
+      <div class="bg-white/90 rounded-3xl text-center px-[24px] py-[12px] shadow-[inset_0_4px_4px_0_rgba(0,0,0,0.25)]">
+        <p class="text-black text-2xl flex flex-row align-items-center justify-center"> <img src="/src/assets/icons/sunset.svg" alt="Sunset" class="w-40px h-40px">Sunset</p>
+        <p id="hero-sunset" class="text-black text-[32px] font-medium">--:--</p>
       </div>
     </div>
 
-    <div class="bg-white/50 rounded-2xl p-4 flex flex-col gap-3">
-      <div class="flex justify-between border-b pb-2">
-        <span class="text-gray-600 text-sm">Humidity</span>
-        <span id="hero-humidity" class="font-bold">-- %</span>
+    <div class="bg-white/90 rounded-3xl text-center px-[24px] py-[12px] shadow-[inset_0_4px_4px_0_rgba(0,0,0,0.25)] flex flex-col w-full">
+      <div class="flex items-center flex-row justify-between border-b-1 border-[#DBE2E6] py-2">
+        <span class="text-black text-[20px] flex flex-row gap-[10px]">
+          <img src="/src/assets/icons/humidity.svg" alt="Humidity" class="w-24px h-24px"> Humidity
+        </span>
+        <span id="hero-humidity" class="text-black text-[20px]">-- %</span>
       </div>
-      <div class="flex justify-between border-b pb-2">
-        <span class="text-gray-600 text-sm">Wind</span>
-        <span id="hero-wind" class="font-bold">-- km/h</span>
+      <div class="flex items-center flex-row justify-between border-b-1 border-[#DBE2E6] py-2">
+        <span class="text-black text-[20px] flex flex-row gap-[10px]">
+          <img src="/src/assets/icons/wind.svg" alt="Wind" class="w-24px h-24px "> Wind
+        </span>
+        <span id="hero-wind" class="text-black text-[20px]">-- km/h</span>
       </div>
-      <div class="flex justify-between border-b pb-2">
-        <span class="text-gray-600 text-sm">Air Quality</span>
-        <span id="hero-air-quality" class="font-bold">--</span>
+      <div class="flex items-center flex-row justify-between border-b-1 border-[#DBE2E6] py-2">
+        <span class="text-black text-[20px] flex flex-row gap-[10px]">
+          <img src="/src/assets/icons/entypo_air.svg" alt="Air Quality" class="w-24px h-24px"> Air Quality
+        </span>
+        <span id="hero-air-quality" class="text-black text-[20px]">-- AQI</span>
       </div>
-      <div class="flex justify-between">
-        <span class="text-gray-600 text-sm">UV Index</span>
-        <span id="hero-uv" class="font-bold">--</span>
+      
+      <div class="flex items-center flex-row justify-between py-2">
+        <span class="text-black text-[20px] flex flex-row gap-[10px]">
+          <img src="/src/assets/icons/mdi_uv-ray.svg" alt="UV Index" class="w-24px h-24px"> UV Index
+        </span>
+        <span id="hero-uv" class="text-black text-[20px]">--</span>
+
       </div>
     </div>
 
