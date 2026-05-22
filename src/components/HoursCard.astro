@@ -2,9 +2,9 @@
 // src/components/HoursCard.astro
 ---
 
-<div class="bg-white/90 backdrop-blur-md border border-gray-200/60 rounded-4xl p-5 shadow-sm h-full w-full mt-6 flex flex-col">
+<div class="bg-white/90 backdrop-blur-md font-roboto border border-gray-200/60 rounded-4xl p-5 shadow-sm h-full w-full mt-6 flex flex-col">
   
-  <h3 id="hourly-title" class="text-xs font-black text-gray-700 tracking-tight mb-4 text-center">
+  <h3 id="hourly-title" class="text-2xl font-bold text-gray-700 tracking-tight mb-4 text-center">
     3-Hour Forecast
   </h3>
 
@@ -13,14 +13,14 @@
     {Array.from({ length: 8 }).map(() => (
       <div class="hour-item flex items-center justify-between py-3 px-1 w-full">
         
-        <div class="hour-time text-xs font-bold text-gray-500 w-12 shrink-0">--:--</div>
+        <div class="hour-time text-xl font-medium text-gray-700 shrink-0">--:--</div>
                 
         <div class="hour-emoji flex-1 flex items-center justify-center mx-2">
-          <div class="w-7 h-7 flex items-center justify-center">
+          <div class="w-200 h-200 flex items-center justify-center">
             </div>
         </div>
         
-        <div class="hour-temp text-xs font-extrabold text-gray-700 w-12 text-right shrink-0">--°</div>
+        <div class="hour-temp text-xl font-medium text-gray-700 text-right shrink-0">--°</div>
       </div>
     ))}
 
