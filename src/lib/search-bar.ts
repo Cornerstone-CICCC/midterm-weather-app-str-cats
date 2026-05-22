@@ -21,6 +21,7 @@ export { hideSearchResults };
 let searchDebounceId: ReturnType<typeof setTimeout> | undefined;
 let onCitySelected: (city: RecentSearchCity) => void = () => {};
 
+/** Record the recent search and hide the search results. */
 function selectSearchCity(city: RecentSearchCity): void {
   recordRecentFromCity(city);
   $("#search-city-input").val("");
@@ -28,6 +29,7 @@ function selectSearchCity(city: RecentSearchCity): void {
   onCitySelected(city);
 }
 
+/** Show the search list with the given locations. */
 function showPlaceSearchResults(locations: LocationData[]): void {
   const items = locations.map((loc) => {
     const title = getCityDisplayName(loc);
@@ -41,6 +43,7 @@ function showPlaceSearchResults(locations: LocationData[]): void {
   showSearchList(items);
 }
 
+/** Run a place search with the given query. */
 export async function runPlaceSearch(query: string): Promise<void> {
   const trimmed = query.trim();
   if (!trimmed) {
@@ -55,6 +58,7 @@ export async function runPlaceSearch(query: string): Promise<void> {
   }
 }
 
+/** Bind the search bar event handlers. */
 export function bindSearchBar(handlers: {
   onCitySelected: (city: RecentSearchCity) => void;
 }): void {

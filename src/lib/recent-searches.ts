@@ -21,6 +21,7 @@ export type RecentSearchCity = {
   longitude: number;
 };
 
+/** Parse the recent searches from the local storage. */
 function parseRecentSearches(raw: string | null): RecentSearch[] {
   if (!raw) return [];
   try {
@@ -32,6 +33,7 @@ function parseRecentSearches(raw: string | null): RecentSearch[] {
   }
 }
 
+/** Check if the given value is a recent search. Used for filtering the recent searches. */
 function isRecentSearch(value: unknown): value is RecentSearch {
   if (!value || typeof value !== "object") return false;
   const v = value as Record<string, unknown>;
@@ -43,6 +45,7 @@ function isRecentSearch(value: unknown): value is RecentSearch {
   );
 }
 
+/** Load the recent searches from the local storage. */
 export function loadRecentSearches(): RecentSearch[] {
   if (typeof window === "undefined") return [];
   return parseRecentSearches(
@@ -50,6 +53,7 @@ export function loadRecentSearches(): RecentSearch[] {
   );
 }
 
+/** Save the recent searches to the local storage. */
 function saveRecentSearches(searches: RecentSearch[]): void {
   window.localStorage.setItem(
     RECENT_SEARCHES_STORAGE_KEY,
@@ -57,6 +61,7 @@ function saveRecentSearches(searches: RecentSearch[]): void {
   );
 }
 
+/** Add a new recent search to the the storage. */
 export function addRecentSearch(
   city: Omit<RecentSearch, "id"> & { id?: string },
 ): void {
@@ -72,6 +77,7 @@ export function addRecentSearch(
   saveRecentSearches([next, ...existing].slice(0, MAX_RECENT_SEARCHES));
 }
 
+/** Record a recent search from a city. */
 export function recordRecentFromCity(city: RecentSearchCity): void {
   addRecentSearch({
     displayName: city.displayName,
@@ -81,11 +87,15 @@ export function recordRecentFromCity(city: RecentSearchCity): void {
   });
 }
 
+/** Check if the search input is empty and focused.
+ * Used to determine if the recent searches should be shown.
+ */
 export function isSearchInputEmptyAndFocused(): boolean {
   const input = $("#search-city-input")[0] as HTMLInputElement | undefined;
   return Boolean(input?.matches(":focus") && !input.value.trim());
 }
 
+/** Show the recent searches in the search bar. */
 export function showRecentSearches(
   onSelect: (city: RecentSearchCity) => void,
 ): void {
@@ -109,6 +119,7 @@ export function showRecentSearches(
   showSearchList(items);
 }
 
+/** Show the recent searches if the search input is empty and focused. */
 export function showRecentSearchesIfApplicable(
   onSelect: (city: RecentSearchCity) => void,
 ): void {
