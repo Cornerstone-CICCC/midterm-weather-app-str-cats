@@ -86,6 +86,14 @@ function updateHourlyUI(targetDate: string): void {
   });
 }
 
+
+/** Highlight the clicked day card; remove highlight from the others. */
+function setActiveDayCard($activeCard: JQuery<HTMLElement>): void {
+  const activeDayClasses = "bg-neutral-100 shadow-inner shadow-black/30";
+  $(".day-card").removeClass(activeDayClasses);
+  $activeCard.addClass(activeDayClasses);
+}
+
 /**
  * @function updateDailyUI
  * @param {DailyForecast[]} daily - Array of daily forecast data to map into the UI
@@ -126,16 +134,7 @@ $card.off("click").on("click", function () {
         const selectedDate = $(this).attr("data-date");
         if (selectedDate) {
           updateHourlyUI(selectedDate);
-          
-          $(".day-card").css({
-            border: "",
-            "box-shadow": "",
-          });
-          
-          $(this).css({
-            border: "",
-            "box-shadow": "",
-          });
+          setActiveDayCard($(this));
         }
       });
     }
@@ -377,9 +376,7 @@ function getAirQualityLevel(aqi) {
   // Initialize Hourly Panel state mapping 
 if (dailyForecasts.length > 0) {
     updateHourlyUI(dailyForecasts[0].date);
-    
-    $(".day-card").css({ border: "", "box-shadow": "" });
-    $(".day-card").first().css("border", "");
+    setActiveDayCard($(".day-card").first());
   }
 
   console.warn("--- Final Mapped Data ---");
