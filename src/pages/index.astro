@@ -70,7 +70,7 @@ const placeholderDaily = Array.from({ length: 5 }).map((_, i) => ({
 
         <div
           id="daily-forecast-container"
-          class="flex flex-col font-roboto md:flex-row items-stretch w-full overflow-hidden border-none divide-none"
+          class="flex flex-col gap-2 font-roboto md:flex-row items-stretch w-full overflow-hidden border-none divide-none"
         >
           {placeholderDaily.map((forecast) => <DayCard forecast={forecast} />)}
         </div>
