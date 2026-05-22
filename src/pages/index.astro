@@ -11,8 +11,11 @@ import SearchBar from "../components/SearchBar.astro";
 import DayCard from "../components/DayCard.astro";
 import HoursCard from "../components/HoursCard.astro";
 
+import SunRiseSet from "../components/SunRiseSet.astro";
+import WeatherDetails from "../components/WeatherDetails.astro";
+
 import Image from "astro/components/Image.astro";
-import cloudyCat from "../assets/cats/cloudy.png"
+import cloudyCat from "../assets/cats/cloudy.png";
 
 import { getWeatherInfo } from "../lib/weather";
 
@@ -25,7 +28,10 @@ const DEFAULT_CITY = {
 
 let weatherInfo = undefined;
 try {
-  weatherInfo = await getWeatherInfo(DEFAULT_CITY.longitude, DEFAULT_CITY.latitude);
+  weatherInfo = await getWeatherInfo(
+    DEFAULT_CITY.longitude,
+    DEFAULT_CITY.latitude,
+  );
 } catch (e) {
   weatherInfo = undefined;
 }
@@ -47,40 +53,47 @@ const placeholderDaily = Array.from({ length: 5 }).map((_, i) => ({
     <meta name="generator" content={Astro.generator} />
     <title>StrCats Weather</title>
   </head>
-  <body>
+  <body class="grid grid-cols-3 gap-4 min-h-screen pt-8 px-15">
     <!-- <h1 class="">Weather Forecast</h1> -->
+    <header class="flex flex-col flex-1  h-full">
+      <CurrentWeather />
+    </header>
 
-    <div
-      class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-stretch justify-between"
-    >
+    <section class="flex flex-col gap-6 flex-1 h-full">
       <!--  > Favourite Cities Dropdown -->
       <FavCitiesDropdown />
+      <!-- > 5 Day Forecast -->
+      <div class="max-w-150 w-full mt-6 bg-white rounded-3xl p-5 shadow-sm">
+        <h3 class="text-xs font-black text-gray-700 tracking-tight mb-4 ml-2">
+          5-Day Forecast
+        </h3>
+
+        <div
+          id="daily-forecast-container"
+          class="flex flex-col md:flex-row items-stretch w-full overflow-hidden border-none divide-none"
+        >
+          {placeholderDaily.map((forecast) => <DayCard forecast={forecast} />)}
+        </div>
+      </div>
+      <!-- > Sunrise Sunset -->
+      <SunRiseSet />
+      <!-- > Weather Details -->
+      <WeatherDetails />
+    </section>
+    <section class="h-[90%] flex flex-col ">
       <!-- > Searchbar -->
       <SearchBar />
-    </div>
-
-    <CurrentWeather weatherInfo={weatherInfo} />
-
-<div class="max-w-[600px] w-full mt-6 bg-white rounded-[24px] p-5 shadow-sm">
-  <h3 class="text-xs font-black text-gray-700 tracking-tight mb-4 ml-2">
-    5-Day Forecast
-  </h3>
-  
-  <div id="daily-forecast-container" class="flex flex-col md:flex-row items-stretch w-full overflow-hidden border-none divide-none">
-    {placeholderDaily.map((forecast) => <DayCard forecast={forecast} />)}
-  </div>
-</div>
-
-    <h3
-      id="hourly-title"
-      style="margin-left: 12px; color: #333; margin-top: 30px;"
-    >
-      Hourly Forecast
-    </h3>
-
-    <div id="hourly-range-container">
-       <HoursCard />
-    </div>
+      <!-- TODO Change to upper -->
+      <!-- <h3
+        id="hourly-title"
+        style="margin-left: 12px; color: #333; margin-top: 30px;"
+      >
+        Hourly Forecast
+      </h3> -->
+      <div id="hourly-range-container" class="flex-1 flex flex-col h-full">
+        <HoursCard />
+      </div>
+    </section>
   </body>
 
   <script>
