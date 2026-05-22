@@ -320,6 +320,12 @@ function getAirQualityLevel(aqi) {
   const sunsetTime = new Date(weather.daily.sunset[0]).getTime();
   const isDaytime = nowTime >= sunriseTime && nowTime < sunsetTime;
 
+  $("#top-location-name").text(selectedCity.displayName);
+  
+  const topDateString = new Date(weather.current.time).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const topTimeString = new Date(weather.current.time).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  $("#top-date-time").text(`${topDateString}, ${topTimeString}`);
+
   //Get the weather icon 
   const iconFilename = getWeatherIconFilename(weather.current.weather_code, isDaytime);
   $("#hero-weather").attr("src", `/assets/weather-animated/${iconFilename}`);
@@ -335,6 +341,9 @@ function getAirQualityLevel(aqi) {
   const logoFilename = getWeatherLogoFilename(weather.current.weather_code);
   $("#footer-logo").attr("src", `/assets/logo/${logoFilename}`);
 
+  // bg
+  const globalBgFilename = isDaytime ? "Day.svg" : "Night.svg";
+  $("body").css("background-image", `url('/assets/bg-byTime/${globalBgFilename}')`);
 
   const conditionText = getWeatherDescription(weather.current.weather_code);
   $("#hero-condition").text(conditionText);
