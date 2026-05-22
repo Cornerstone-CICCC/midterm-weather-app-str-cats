@@ -9,33 +9,56 @@ export function hideSearchResults(): void {
   $("#search-results").empty().addClass("hidden");
 }
 
+export type SearchListItem = {
+  title: string;
+  subtitle?: string;
+  iconSrc?: string;
+  onSelect: () => void;
+};
+
 export function appendSearchListOption(
   $list: JQuery<HTMLElement>,
-  title: string,
-  subtitle: string | undefined,
-  onSelect: () => void,
+  item: SearchListItem,
 ): void {
+  const { title, subtitle, iconSrc, onSelect } = item;
   const $item = $("<li>", { role: "presentation" });
   const $btn = $("<button>", {
     type: "button",
-    class: SEARCH_RESULT_OPTION_CLASS,
+    class: iconSrc
+      ? `${SEARCH_RESULT_OPTION_CLASS} flex items-start gap-3`
+      : SEARCH_RESULT_OPTION_CLASS,
     role: "option",
   });
-  $("<span>", { class: "block font-medium", text: title }).appendTo($btn);
+
+  const $textWrap = $("<span>", {
+    class: iconSrc ? "min-w-0 flex-1" : undefined,
+  });
+  if (iconSrc) {
+    $("<img>", {
+      src: iconSrc,
+      alt: "",
+      width: 20,
+      height: 20,
+      class: "mt-2 h-4 w-5 shrink-0 object-contain opacity-40",
+    }).appendTo($btn);
+  }
+  $("<span>", { class: "block font-medium", text: title }).appendTo(
+    iconSrc ? $textWrap : $btn,
+  );
   if (subtitle) {
     $("<span>", {
       class: SEARCH_RESULT_SUBTITLE_CLASS,
       text: subtitle,
-    }).appendTo($btn);
+    }).appendTo(iconSrc ? $textWrap : $btn);
   }
+  if (iconSrc) $textWrap.appendTo($btn);
+
   $btn.on("click", onSelect);
   $item.append($btn);
   $list.append($item);
 }
 
-export function showSearchList(
-  items: { title: string; subtitle?: string; onSelect: () => void }[],
-): void {
+export function showSearchList(items: SearchListItem[]): void {
   const $list = $("#search-results");
   $list.empty();
   if (!items.length) {
@@ -43,7 +66,7 @@ export function showSearchList(
     return;
   }
   for (const item of items) {
-    appendSearchListOption($list, item.title, item.subtitle, item.onSelect);
+    appendSearchListOption($list, item);
   }
   $list.removeClass("hidden");
 }

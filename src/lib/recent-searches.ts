@@ -4,6 +4,7 @@ import { hideSearchResults, showSearchList } from "./search-list";
 
 const RECENT_SEARCHES_STORAGE_KEY = "strcats-weather-recent-searches";
 const MAX_RECENT_SEARCHES = 5;
+const RECENT_SEARCH_ICON_SRC = "/assets/icon-history.png";
 
 export type RecentSearch = {
   id: string;
@@ -91,6 +92,7 @@ export function showRecentSearches(
   const items = loadRecentSearches().map((entry) => ({
     title: entry.displayName,
     subtitle: entry.subtitle,
+    iconSrc: RECENT_SEARCH_ICON_SRC,
     onSelect: () => {
       const city: RecentSearchCity = {
         displayName: entry.displayName,
