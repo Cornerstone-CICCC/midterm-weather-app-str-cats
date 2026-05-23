@@ -1,12 +1,14 @@
 import $ from "jquery";
 
+import { getContext } from "./init-weather-app"
+
 export const SEARCH_RESULT_OPTION_CLASS =
   "w-full px-4 py-2.5 text-left text-sm text-slate-950 hover:bg-slate-50 focus:bg-slate-50 focus:outline-none";
 export const SEARCH_RESULT_SUBTITLE_CLASS =
   "block text-xs text-slate-500 mt-0.5";
 
 export function hideSearchResults(): void {
-  $("#search-results").empty().addClass("hidden");
+  $("#search-results", getContext()).empty().addClass("hidden");
 }
 
 export type SearchListItem = {
@@ -61,7 +63,7 @@ export function appendSearchListOption(
 
 /** Show the search list with the given items. */
 export function showSearchList(items: SearchListItem[]): void {
-  const $list = $("#search-results");
+  const $list = $("#search-results", getContext());
   $list.empty();
   if (!items.length) {
     $list.addClass("hidden");
