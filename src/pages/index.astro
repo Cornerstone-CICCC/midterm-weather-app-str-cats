@@ -14,9 +14,6 @@ import HoursCard from "../components/HoursCard.astro";
 import SunRiseSet from "../components/SunRiseSet.astro";
 import WeatherDetails from "../components/WeatherDetails.astro";
 
-import Image from "astro/components/Image.astro";
-import cloudyCat from "../assets/cats/cloudy.png";
-
 import { getWeatherInfo } from "../lib/weather";
 
 // Default city: Vancouver, Canada
@@ -53,7 +50,7 @@ const placeholderDaily = Array.from({ length: 5 }).map((_, i) => ({
     <meta name="generator" content={Astro.generator} />
     <title>StrCats Weather</title>
   </head>
-  <body >
+  <body class="bg-cover bg-center bg-no-repeat bg-fixed" style="background-image: url('/assets/bg-byTime/Day.svg');">
     <!-- > Loading screen -->
     <div
       id="global-loading-screen"
@@ -71,7 +68,7 @@ const placeholderDaily = Array.from({ length: 5 }).map((_, i) => ({
       </div>
     </div>
 
-    <main id="desktop-layout" class="hidden md:grid grid-cols-3 gap-4 min-h-screen pt-8 px-15 bg-cover bg-center bg-no-repeat bg-fixed" style="background-image: url('/assets/bg-byTime/Day.svg');">
+    <main id="desktop-layout" class="hidden md:grid grid-cols-3 gap-4 min-h-screen pt-8 px-15 bg-cover bg-center bg-no-repeat bg-fixed">
       <!-- `Col 1` -->
       <header class="flex flex-col flex-1 h-full">
         <CurrentWeather />

@@ -14,11 +14,21 @@ export function getGeolocation(): Promise<GeolocationData> {
     }
 
     navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        resolve({
-          lat: coords.latitude,
-          lng: coords.longitude,
-        });
+      async ({ coords }) => {
+        try {
+          const res = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${coords.latitude}&longitude=${coords.longitude}&localityLanguage=en`,
+          );
+          const data = await res.json();
+
+          resolve({
+            lat: coords.latitude,
+            lng: coords.longitude,
+            city: data.city
+          });
+        } catch (err) {
+          reject(err);
+        }
       },
       (error: GeolocationPositionError) => reject(error),
       { timeout: 4000, enableHighAccuracy: false, maximumAge: 300000 },
