@@ -97,7 +97,7 @@ function updateHourlyUI(targetDate: string): void {
   const filteredHourly = allHourlyData.filter((item) =>
     item.time.startsWith(targetDate),
   );
-  const $hourItems = $(".hour-item");
+  const $hourItems = $(".hour-item", $activeLayoutContext);
 
   $hourItems.each((index, element) => {
     const $item = $(element);
