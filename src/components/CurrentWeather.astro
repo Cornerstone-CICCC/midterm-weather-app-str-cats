@@ -35,7 +35,7 @@ import iconSnow from "../assets/icons/famicons_snow.svg";
 // });
 ---
 
-<section class="current-weather-section flex h-full w-full">
+<section class="current-weather-section flex h-181 md:h-full w-full">
 	<article
 		class="hero-card relative flex h-full w-full flex-col overflow-hidden p-9"
 	>
@@ -58,24 +58,24 @@ import iconSnow from "../assets/icons/famicons_snow.svg";
 						id="fav-icon-default"
 						src={favDefault}
 						alt="Favorite Icon"
-						class="h-10 w-10 object-contain"
+						class="min-h-10 min-w-10 object-contain"
 					/>
 					<Image
 						id="fav-icon-active"
 						src={favClicked}
 						alt="Favorited Icon"
-						class="hidden h-10 w-10 object-contain"
+						class="hidden min-h-10 min-w-10 object-contain"
 					/>
 				</button>
 				<h2
 					id="hero-city-name"
-					class="text-4xl font-medium tracking-tight opacity-80"
+					class="text-3xl xl:text-4xl font-medium tracking-tight opacity-80"
 				>
 					Vancouver
 				</h2>
 			</header>
 
-			<div class="relative z-20 mt-4 flex items-center justify-between">
+			<div class="relative z-20 mt-4 flex md:flex-col xl:flex-row items-center justify-between">
 				<div class="flex flex-col">
 					<h1 class="text-6xl font-semibold tracking-tighter opacity-80">
 						<span id="hero-temp-main">18</span><span
@@ -99,7 +99,7 @@ import iconSnow from "../assets/icons/famicons_snow.svg";
 					</div>
 				</div>
 
-				<div class="h-50 w-50 shrink-0 drop-shadow-md">
+				<div class="w-35 h-35 md:h-50 md:w-50 shrink-0 drop-shadow-md">
 					<img
 						id="hero-weather"
 						src=""
