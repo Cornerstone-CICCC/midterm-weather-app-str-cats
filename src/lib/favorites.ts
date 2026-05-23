@@ -2,6 +2,8 @@ import type { FavoriteCity } from "../types/favorite-city";
 
 const FAVORITES_STORAGE_KEY = "strcats-weather-favorites";
 
+import { getContext } from "./init-weather-app"
+
 /** Create a unique ID for a favorite city. 
  * Used to identify a favorite city in the storage.
  * Ids are useful for adding/removing favs

@@ -6,6 +6,9 @@ const RECENT_SEARCHES_STORAGE_KEY = "strcats-weather-recent-searches";
 const MAX_RECENT_SEARCHES = 5;
 const RECENT_SEARCH_ICON_SRC = "/assets/icon-history.png";
 
+import { getContext } from "./init-weather-app"
+
+
 export type RecentSearch = {
   id: string;
   displayName: string;
@@ -91,7 +94,8 @@ export function recordRecentFromCity(city: RecentSearchCity): void {
  * Used to determine if the recent searches should be shown.
  */
 export function isSearchInputEmptyAndFocused(): boolean {
-  const input = $("#search-city-input")[0] as HTMLInputElement | undefined;
+  const $context = getContext();
+  const input = $("#search-city-input", $context)[0] as HTMLInputElement | undefined;
   return Boolean(input?.matches(":focus") && !input.value.trim());
 }
 
@@ -111,7 +115,7 @@ export function showRecentSearches(
         longitude: entry.longitude,
       };
       recordRecentFromCity(city);
-      $("#search-city-input").val("");
+      $("#search-city-input", getContext()).val("");
       hideSearchResults();
       onSelect(city);
     },

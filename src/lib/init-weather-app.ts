@@ -47,8 +47,12 @@ let favoritesCache: FavoriteCity[] = loadFavorites();
 // Application state for layout mappings
 let allHourlyData: HourlyForecast[] = [];
 
-// Active layout context (e.g., desktop vs mobile) for dynamic UI updates; initialized on DOM ready 
+// Active layout context (e.g., desktop vs mobile) for dynamic UI updates; initialized on DOM ready
 let $activeLayoutContext: JQuery<HTMLElement>;
+
+export function getContext(): JQuery<HTMLElement> {
+  return $activeLayoutContext || $("body"); // Si no se ha inicializado, recurre al body por seguridad
+}
 
 function getActiveLayout(): void {
   if (window.matchMedia("(min-width: 768px)").matches) {
@@ -200,8 +204,8 @@ async function resolveInitialCity(): Promise<void> {
  * @returns {void}
  */
 function hideFavoriteList(): void {
-  $("#favorite-cities-list").addClass("hidden");
-  $("#favorite-cities-trigger").attr("aria-expanded", "false");
+  $("#favorite-cities-list", $activeLayoutContext).addClass("hidden");
+  $("#favorite-cities-trigger", $activeLayoutContext).attr("aria-expanded", "false");
 }
 
 /**
@@ -211,8 +215,8 @@ function hideFavoriteList(): void {
  */
 function showFavoriteList(): void {
   // if (!favoritesCache.length) return;
-  $("#favorite-cities-list").removeClass("hidden");
-  $("#favorite-cities-trigger").attr("aria-expanded", "true");
+  $("#favorite-cities-list", $activeLayoutContext).removeClass("hidden");
+  $("#favorite-cities-trigger", $activeLayoutContext).attr("aria-expanded", "true");
 }
 
 /**
@@ -222,7 +226,7 @@ function showFavoriteList(): void {
  */
 function renderFavoriteDropdown(): void {
   favoritesCache = loadFavorites();
-  const $list = $("#favorite-cities-list");
+  const $list = $("#favorite-cities-list", $activeLayoutContext);
   $list.empty();
   hideFavoriteList();
   if (!favoritesCache.length) {
@@ -299,10 +303,18 @@ function renderWeatherCard(weather: WeatherData): void {
   renderLocationSubtitle();
 
   const unit = weather.current_units.temperature_2m;
-  $("#hero-temp-main", $activeLayoutContext).text(`${weather.current.temperature_2m}${unit}`);
-  $("#hero-feels-like", $activeLayoutContext).text(`${weather.current.apparent_temperature}`);
-  $("#hero-wind", $activeLayoutContext).text(`${weather.current.wind_speed_10m} km/h`);
-  $("#hero-humidity", $activeLayoutContext).text(`${weather.current.relative_humidity_2m} %`);
+  $("#hero-temp-main", $activeLayoutContext).text(
+    `${weather.current.temperature_2m}${unit}`,
+  );
+  $("#hero-feels-like", $activeLayoutContext).text(
+    `${weather.current.apparent_temperature}`,
+  );
+  $("#hero-wind", $activeLayoutContext).text(
+    `${weather.current.wind_speed_10m} km/h`,
+  );
+  $("#hero-humidity", $activeLayoutContext).text(
+    `${weather.current.relative_humidity_2m} %`,
+  );
 
   function getUvLevel(uv) {
     if (uv === null || uv === undefined) return "unknown";
@@ -327,13 +339,21 @@ function renderWeatherCard(weather: WeatherData): void {
     return `extremely poor (${aqi})`;
   }
 
-  $("#hero-uv", $activeLayoutContext).text(getUvLevel(weather.current.uv_index));
+  $("#hero-uv", $activeLayoutContext).text(
+    getUvLevel(weather.current.uv_index),
+  );
 
-  $("#hero-air-quality", $activeLayoutContext).text(getAirQualityLevel(weather.current.european_aqi));
+  $("#hero-air-quality", $activeLayoutContext).text(
+    getAirQualityLevel(weather.current.european_aqi),
+  );
 
-  $("#hero-uv", $activeLayoutContext).text(getUvLevel(weather.current.uv_index));
+  $("#hero-uv", $activeLayoutContext).text(
+    getUvLevel(weather.current.uv_index),
+  );
 
-  $("#hero-air-quality", $activeLayoutContext).text(getAirQualityLevel(weather.current.european_aqi));
+  $("#hero-air-quality", $activeLayoutContext).text(
+    getAirQualityLevel(weather.current.european_aqi),
+  );
 
   // Format Sunrise and Sunset
   const sunriseRaw = weather.daily.sunrise[0];
@@ -366,7 +386,9 @@ function renderWeatherCard(weather: WeatherData): void {
     minute: "2-digit",
     hour12: false,
   });
-  $("#top-date-time", $activeLayoutContext).text(`${topDateString}, ${topTimeString}`);
+  $("#top-date-time", $activeLayoutContext).text(
+    `${topDateString}, ${topTimeString}`,
+  );
   console.log(topTimeString);
 
   //Get the weather icon
@@ -374,18 +396,30 @@ function renderWeatherCard(weather: WeatherData): void {
     weather.current.weather_code,
     isDaytime,
   );
-  $("#hero-weather", $activeLayoutContext).attr("src", `/assets/weather-animated/${iconFilename}`);
+  $("#hero-weather", $activeLayoutContext).attr(
+    "src",
+    `/assets/weather-animated/${iconFilename}`,
+  );
 
   // Get the cat mascot
   const catFilename = getWeatherCatFilename(weather.current.weather_code);
-  $("#cat-mascot", $activeLayoutContext).attr("src", `/assets/cats/${catFilename}`);
+  $("#cat-mascot", $activeLayoutContext).attr(
+    "src",
+    `/assets/cats/${catFilename}`,
+  );
 
   // get hero card bg and logo
   const bgFilename = getWeatherBgFilename(weather.current.weather_code);
-  $("#hero-bg", $activeLayoutContext).attr("src", `/assets/bg-laptop/${bgFilename}`);
+  $("#hero-bg", $activeLayoutContext).attr(
+    "src",
+    `/assets/bg-laptop/${bgFilename}`,
+  );
 
   const logoFilename = getWeatherLogoFilename(weather.current.weather_code);
-  $("#footer-logo", $activeLayoutContext).attr("src", `/assets/logo/${logoFilename}`);
+  $("#footer-logo", $activeLayoutContext).attr(
+    "src",
+    `/assets/logo/${logoFilename}`,
+  );
 
   // bg
   const globalBgFilename = isDaytime ? "Day.svg" : "Night.svg";
@@ -399,7 +433,9 @@ function renderWeatherCard(weather: WeatherData): void {
 
   const range = getTodayMinMax(weather);
   if (range) {
-    $("#hero-temp-range", $activeLayoutContext).text(`${range.min}${unit} - ${range.max}${unit}`);
+    $("#hero-temp-range", $activeLayoutContext).text(
+      `${range.min}${unit} - ${range.max}${unit}`,
+    );
   } else {
     $("#hero-temp-range", $activeLayoutContext).text("—");
   }
@@ -413,8 +449,12 @@ function renderWeatherCard(weather: WeatherData): void {
 
   const rain0 = weather.hourly.rain[0];
   const snow0 = weather.hourly.snowfall[0];
-  $("#hero-rain-value", $activeLayoutContext).text(`${rain0} ${weather.hourly_units.rain}`);
-  $("#hero-snow-value", $activeLayoutContext).text(`${snow0} ${weather.hourly_units.snowfall}`);
+  $("#hero-rain-value", $activeLayoutContext).text(
+    `${rain0} ${weather.hourly_units.rain}`,
+  );
+  $("#hero-snow-value", $activeLayoutContext).text(
+    `${snow0} ${weather.hourly_units.snowfall}`,
+  );
 
   $("#hero-status").addClass("hidden").text("");
 
@@ -495,13 +535,13 @@ function bindFavoriteToggle(): void {
  * @returns {void}
  */
 function bindFavoriteDropdown(): void {
-  $("#favorite-cities-trigger").on("click", () => {
-    const $list = $("#favorite-cities-list");
+  $("#favorite-cities-trigger", $activeLayoutContext).on("click", () => {
+    const $list = $("#favorite-cities-list", $activeLayoutContext);
     if ($list.hasClass("hidden")) showFavoriteList();
     else hideFavoriteList();
   });
 
-  $("#favorite-cities-list").on(
+  $("#favorite-cities-list", $activeLayoutContext).on(
     "click",
     'button[role="option"]',
     function (this: HTMLButtonElement) {
@@ -520,7 +560,7 @@ function bindFavoriteDropdown(): void {
     },
   );
 
-  $("#favorite-cities-trigger").on("keydown", (e) => {
+  $("#favorite-cities-trigger", $activeLayoutContext).on("keydown", (e) => {
     if (e.key === "Escape") hideFavoriteList();
   });
 }
@@ -537,7 +577,7 @@ function bindClickOutsideDropdowns(): void {
     if ($searchWrap.length && !$searchWrap[0]?.contains(target)) {
       hideSearchResults();
     }
-    const $favWrap = $("#favorite-cities-trigger").parent();
+    const $favWrap = $("#favorite-cities-trigger", $activeLayoutContext).parent();
     if ($favWrap.length && !$favWrap[0]?.contains(target)) {
       hideFavoriteList();
     }
@@ -695,9 +735,9 @@ export async function initWeatherApp(): Promise<void> {
     bindSearchBar({
       onCitySelected: async (city: RecentSearchCity) => {
         selectedCity = city;
-        showLoading(); 
+        showLoading();
         await loadWeatherForSelected();
-        hideLoading(); 
+        hideLoading();
       },
     });
   } catch (error) {
