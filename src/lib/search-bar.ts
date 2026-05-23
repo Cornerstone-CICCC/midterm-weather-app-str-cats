@@ -18,24 +18,18 @@ import type { LocationData } from "../types/location";
 export type { RecentSearchCity };
 export { hideSearchResults };
 
+import { getContext } from "./init-weather-app"
+
 let searchDebounceId: ReturnType<typeof setTimeout> | undefined;
 let onCitySelected: (city: RecentSearchCity) => void = () => {};
 
-let $activeLayoutContext: JQuery<HTMLElement>;
 
-function getActiveLayout(): void {
-  if (window.matchMedia("(min-width: 768px)").matches) {
-    $activeLayoutContext = $("#desktop-layout");
-  } else {
-    $activeLayoutContext = $("#mobile-layout");
-  }
-}
 
 
 /** Record the recent search and hide the search results. */
 function selectSearchCity(city: RecentSearchCity): void {
   recordRecentFromCity(city);
-  $("#search-city-input", $activeLayoutContext).val("");
+  $("#search-city-input", getContext()).val("");
   hideSearchResults();
   onCitySelected(city);
 }
@@ -75,11 +69,11 @@ export function bindSearchBar(handlers: {
 }): void {
   onCitySelected = handlers.onCitySelected;
 
-  $("#search-city-input").on("focus", function (this: HTMLInputElement) {
+  $("#search-city-input", getContext()).on("focus", function (this: HTMLInputElement) {
     if (!this.value.trim()) showRecentSearches(onCitySelected);
   });
 
-  $("#search-city-input").on("input", function (this: HTMLInputElement) {
+  $("#search-city-input", getContext()).on("input", function (this: HTMLInputElement) {
     const q = this.value;
     if (searchDebounceId) clearTimeout(searchDebounceId);
     if (!q.trim()) {
@@ -92,7 +86,7 @@ export function bindSearchBar(handlers: {
     }, 350);
   });
 
-  $("#search-city-input").on("keydown", (e) => {
+  $("#search-city-input", getContext()).on("keydown", (e) => {
     if (e.key === "Escape") hideSearchResults();
   });
 }
