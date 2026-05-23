@@ -15,3 +15,8 @@ export type LocationData = {
   type: string;
   zipcode: string[];
 };
+
+export type GeolocationData = {
+  lat: number;
+  lng: number;
+}

@@ -1,0 +1,30 @@
+---
+import Image from "astro/components/Image.astro"
+import searchIcon from "../assets/icons/Leading-icon-button.svg"
+---
+
+<div class="relative min-w-96 max-w-full">
+  <span
+    class="absolute left-1 top-1/2 -translate-y-1/2"
+  >
+    <Image
+      src={searchIcon}
+      alt=""
+      width="19"
+      height="19"
+      class="h-14 w-14 object-contain"
+    />
+  </span>
+  <input
+    id="search-city-input"
+    type="search"
+    placeholder="Search city"
+    class="h-12 w-full rounded-full font-roboto font-normal border border-slate-200 bg-white pl-14 pt-1 pr-4 text-sm shadow-inner shadow-black/40 outline-none"
+  />
+  <ul
+    id="search-results"
+    class="absolute left-0 right-0 top-full z-20 mt-1 hidden max-h-56 overflow-auto rounded-2xl border border-violet-100 bg-white py-1 text-sm shadow-lg"
+    role="listbox"
+  >
+  </ul>
+</div>
