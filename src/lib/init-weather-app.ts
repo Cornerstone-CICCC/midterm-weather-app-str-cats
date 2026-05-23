@@ -187,7 +187,7 @@ async function resolveInitialCity(): Promise<void> {
   try {
     const loc = await getGeolocation();
     selectedCity = {
-      displayName: GEO_LOCATION_LABEL,
+      displayName: loc.city || GEO_LOCATION_LABEL,
       subtitle: "",
       latitude: loc.lat,
       longitude: loc.lng,
@@ -204,7 +204,10 @@ async function resolveInitialCity(): Promise<void> {
  */
 function hideFavoriteList(): void {
   $("#favorite-cities-list", $activeLayoutContext).addClass("hidden");
-  $("#favorite-cities-trigger", $activeLayoutContext).attr("aria-expanded", "false");
+  $("#favorite-cities-trigger", $activeLayoutContext).attr(
+    "aria-expanded",
+    "false",
+  );
 }
 
 /**
@@ -215,7 +218,10 @@ function hideFavoriteList(): void {
 function showFavoriteList(): void {
   // if (!favoritesCache.length) return;
   $("#favorite-cities-list", $activeLayoutContext).removeClass("hidden");
-  $("#favorite-cities-trigger", $activeLayoutContext).attr("aria-expanded", "true");
+  $("#favorite-cities-trigger", $activeLayoutContext).attr(
+    "aria-expanded",
+    "true",
+  );
 }
 
 /**
@@ -260,7 +266,7 @@ function renderFavoriteDropdown(): void {
 }
 
 function renderLocationSubtitle(): void {
-  const $sub = $("#hero-location-subtitle");
+  const $sub = $("#hero-location-subtitle", $activeLayoutContext);
   if (selectedCity.subtitle) {
     $sub.text(selectedCity.subtitle).removeClass("hidden");
   } else {
@@ -275,18 +281,18 @@ function renderLocationSubtitle(): void {
  */
 function refreshStarState(): void {
   const active = isFavorite(selectedCity.latitude, selectedCity.longitude);
-  const $btn = $("#favorite-toggle");
+  const $btn = $("#favorite-toggle", $activeLayoutContext);
   $btn.attr("aria-pressed", active ? "true" : "false");
   $btn.attr(
     "aria-label",
     active ? "Remove this city from favorites" : "Save this city to favorites",
   );
   if (active) {
-    $("#fav-icon-default").addClass("hidden");
-    $("#fav-icon-active").removeClass("hidden");
+    $("#fav-icon-default", $activeLayoutContext).addClass("hidden");
+    $("#fav-icon-active", $activeLayoutContext).removeClass("hidden");
   } else {
-    $("#fav-icon-active").addClass("hidden");
-    $("#fav-icon-default").removeClass("hidden");
+    $("#fav-icon-active", $activeLayoutContext).addClass("hidden");
+    $("#fav-icon-default", $activeLayoutContext).removeClass("hidden");
   }
 }
 
@@ -375,15 +381,21 @@ function renderWeatherCard(weather: WeatherData): void {
 
   $("#top-location-name", $activeLayoutContext).text(selectedCity.displayName);
 
-  const topDateString = new Date().toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-  const topTimeString = new Date().toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
+  const topDateString = new Date(weather.current.time).toLocaleDateString(
+    "en-US",
+    {
+      month: "short",
+      day: "numeric",
+    },
+  );
+  const topTimeString = new Date(weather.current.time).toLocaleTimeString(
+    "en-US",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    },
+  );
   $("#top-date-time", $activeLayoutContext).text(
     `${topDateString}, ${topTimeString}`,
   );
@@ -420,6 +432,8 @@ function renderWeatherCard(weather: WeatherData): void {
 
   // bg
   const globalBgFilename = isDaytime ? "Day.svg" : "Night.svg";
+  console.log(isDaytime);
+  console.log(globalBgFilename);
   $("body").css(
     "background-image",
     `url('/assets/bg-byTime/${globalBgFilename}')`,
@@ -453,7 +467,7 @@ function renderWeatherCard(weather: WeatherData): void {
     `${snow0} ${weather.hourly_units.snowfall}`,
   );
 
-  $("#hero-status").addClass("hidden").text("");
+  $("#hero-status", $activeLayoutContext).addClass("hidden").text("");
 
   // --- Extended Layout Components Processing ---
   const dailyForecasts = mapDailyForecast(weather.daily);
@@ -476,7 +490,7 @@ function renderWeatherCard(weather: WeatherData): void {
  * @returns {Promise<void>} A promise that resolves when the weather is loaded.
  */
 async function loadWeatherForSelected(): Promise<void> {
-  const $status = $("#hero-status");
+  const $status = $("#hero-status", $activeLayoutContext);
   $status.removeClass("hidden").text("Loading forecast…");
 
   try {
@@ -489,10 +503,10 @@ async function loadWeatherForSelected(): Promise<void> {
   } catch (e) {
     const message = e instanceof Error ? e.message : "Could not load weather.";
     $status.removeClass("hidden").text(message);
-    $("#hero-temp-main").text("—");
-    $("#hero-temp-range").text("—");
-    $("#hero-rain-value").text("—");
-    $("#hero-snow-value").text("—");
+    $("#hero-temp-main", $activeLayoutContext).text("—");
+    $("#hero-temp-range", $activeLayoutContext).text("—");
+    $("#hero-rain-value", $activeLayoutContext).text("—");
+    $("#hero-snow-value", $activeLayoutContext).text("—");
     renderLocationSubtitle();
     refreshStarState();
   }
@@ -504,7 +518,7 @@ async function loadWeatherForSelected(): Promise<void> {
  * @returns {void}
  */
 function bindFavoriteToggle(): void {
-  $("#favorite-toggle").on("click", () => {
+  $("#favorite-toggle", $activeLayoutContext).on("click", () => {
     const id = createFavoriteId(selectedCity.latitude, selectedCity.longitude);
     if (isFavorite(selectedCity.latitude, selectedCity.longitude)) {
       removeFavoriteById(id);
@@ -569,7 +583,10 @@ function bindClickOutsideDropdowns(): void {
     if ($searchWrap.length && !$searchWrap[0]?.contains(target)) {
       hideSearchResults();
     }
-    const $favWrap = $("#favorite-cities-trigger", $activeLayoutContext).parent();
+    const $favWrap = $(
+      "#favorite-cities-trigger",
+      $activeLayoutContext,
+    ).parent();
     if ($favWrap.length && !$favWrap[0]?.contains(target)) {
       hideFavoriteList();
     }

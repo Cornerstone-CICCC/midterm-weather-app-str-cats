@@ -19,4 +19,5 @@ export type LocationData = {
 export type GeolocationData = {
   lat: number;
   lng: number;
+  city?: string;
 }
