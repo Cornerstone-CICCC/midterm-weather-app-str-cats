@@ -77,7 +77,6 @@ function showLoading(): void {
  * for a smooth transition.
  */
 function hideLoading(): void {
-  console.log("out!!!!!!!!!!!!!!!!!!");
   const $loader = $("#global-loading-screen");
   $loader.removeClass("opacity-100").addClass("opacity-0");
 
@@ -230,7 +229,6 @@ function renderFavoriteDropdown(): void {
   $list.empty();
   hideFavoriteList();
   if (!favoritesCache.length) {
-    console.log("enter");
     $list.append(
       $("<li>", {
         class: "px-4 py-2 text-sm text-slate-500",
@@ -389,7 +387,6 @@ function renderWeatherCard(weather: WeatherData): void {
   $("#top-date-time", $activeLayoutContext).text(
     `${topDateString}, ${topTimeString}`,
   );
-  console.log(topTimeString);
 
   //Get the weather icon
   const iconFilename = getWeatherIconFilename(
@@ -471,11 +468,6 @@ function renderWeatherCard(weather: WeatherData): void {
     updateHourlyUI(dailyForecasts[0].date);
     setActiveDayCard($(".day-card").first());
   }
-
-  console.warn("--- Final Mapped Data ---");
-  console.log("1. 5-Day Forecast Data:", dailyForecasts);
-  console.log("2. 3-Hour Interval Data (Next 24h):", hourlyRange);
-  console.log("3. mapHourly Check:", allHourlyData);
 }
 
 /**
@@ -605,7 +597,7 @@ export function getWeatherEmoji(code: number): string {
   else if ([85, 86].includes(code)) assetName = "85,86.svg";
   else if (code >= 95) assetName = "95,96,99.svg";
 
-  return `<img src="../src/assets/weather-static/${assetName}" alt="Weather Icon" class="w-14 h-14 object-contain object-center" />`;
+  return `<img src="/src/assets/weather-static/${assetName}" alt="Weather Icon" class="w-14 h-14 object-contain object-center" />`;
 }
 
 /**
@@ -741,7 +733,7 @@ export async function initWeatherApp(): Promise<void> {
       },
     });
   } catch (error) {
-    console.error("Error crítico en el arranque de StrCats Weather:", error);
+    // TODO: Implement a user-friendly error display in the UI
   } finally {
     setTimeout(() => {
       hideLoading();

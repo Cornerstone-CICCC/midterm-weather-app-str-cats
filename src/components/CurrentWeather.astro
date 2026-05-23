@@ -2,37 +2,8 @@
 // import type { WeatherData } from '../types/weather';
 import { Image } from "astro:assets";
 
-import favDefault from "../assets/icons/fav=default.svg";
-import favClicked from "../assets/icons/fav=blue-clicked.svg";
-import mobileBg from "../assets/bg-mobile/Property 1=sunny.svg";
 
-import iconUmbrella from "../assets/icons/umbrella.svg";
-import iconSnow from "../assets/icons/famicons_snow.svg";
 
-// interface Props {
-//   cityName: string;
-//   weatherInfo: WeatherData;
-// }
-
-// const { cityName, weatherInfo } = Astro.props;
-// const current = weatherInfo && weatherInfo.current ? weatherInfo.current : null;
-// const units = weatherInfo && weatherInfo.current_units ? weatherInfo.current_units : null;
-
-// function getUvLevel(uv: number | null | undefined): string {
-//   if (uv === null || uv === undefined) return "unknown";
-
-//   if (uv <= 2) return `low (${uv})`;
-//   if (uv <= 5) return `moderate (${uv})`;
-//   if (uv <= 7) return `high (${uv})`;
-//   if (uv <= 10) return `very-high (${uv})`;
-
-//   return `extreme (${uv})`;
-// }
-
-// const formattedTime = new Date(current.time).toLocaleTimeString([], {
-//   hour: '2-digit',
-//   minute: '2-digit'
-// });
 ---
 
 <section class="current-weather-section flex h-181 md:h-full w-full">
@@ -54,15 +25,15 @@ import iconSnow from "../assets/icons/famicons_snow.svg";
 					class="transition hover:scale-110 hover:opacity-80"
 					aria-label="Toggle Favorite"
 				>
-					<Image
+					<img
 						id="fav-icon-default"
-						src={favDefault}
+						src="/assets/icons/fav=default.svg"
 						alt="Favorite Icon"
 						class="min-h-10 min-w-10 object-contain"
 					/>
-					<Image
+					<img
 						id="fav-icon-active"
-						src={favClicked}
+						src="/assets/icons/fav=blue-clicked.svg"
 						alt="Favorited Icon"
 						class="hidden min-h-10 min-w-10 object-contain"
 					/>
@@ -88,12 +59,12 @@ import iconSnow from "../assets/icons/famicons_snow.svg";
 					</div>
 					<div class="flex items-center pl-1 gap-3 text-base opacity-80">
 						<span class="flex items-center gap-1">
-							<Image src={iconUmbrella} class="h-4 w-4 opacity-80" alt="Rain" />
+							<img src="/assets/icons/umbrella.svg" class="h-4 w-4 opacity-80" alt="Rain" />
 							<span id="hero-precipitation">10%</span>
 						</span>
 						<span class="text-slate-400">|</span>
 						<span class="flex items-center gap-1">
-							<Image src={iconSnow} class="h-4 w-4 opacity-80" alt="Snow" />
+							<img src="/assets/icons/famicons_snow.svg" class="h-4 w-4 opacity-80" alt="Snow" />
 							<span id="hero-snowfall">10%</span>
 						</span>
 					</div>
