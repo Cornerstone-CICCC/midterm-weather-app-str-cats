@@ -47,6 +47,17 @@ let favoritesCache: FavoriteCity[] = loadFavorites();
 // Application state for layout mappings
 let allHourlyData: HourlyForecast[] = [];
 
+// Active layout context (e.g., desktop vs mobile) for dynamic UI updates; initialized on DOM ready 
+let $activeLayoutContext: JQuery<HTMLElement>;
+
+function getActiveLayout(): void {
+  if (window.matchMedia("(min-width: 768px)").matches) {
+    $activeLayoutContext = $("#desktop-layout");
+  } else {
+    $activeLayoutContext = $("#mobile-layout");
+  }
+}
+
 /**
  * @function showLoading
  * @description Displays the global loading screen by removing opacity and pointer event restrictions.
@@ -77,7 +88,7 @@ function hideLoading(): void {
  * @description Dynamically updates the pre-rendered HoursCard elements with filtered data
  */
 function updateHourlyUI(targetDate: string): void {
-  const $hourlyTitle = $("#hourly-title");
+  const $hourlyTitle = $("#hourly-title", $activeLayoutContext);
   const titleDate = new Date(targetDate.replace(/-/g, "/"));
   // $hourlyTitle.text(
   //   `${titleDate.toLocaleDateString("en-US", { weekday: "short", month: "numeric", day: "numeric" })} Hourly Forecast`,
@@ -86,7 +97,7 @@ function updateHourlyUI(targetDate: string): void {
   const filteredHourly = allHourlyData.filter((item) =>
     item.time.startsWith(targetDate),
   );
-  const $hourItems = $(".hour-item");
+  const $hourItems = $(".hour-item", $activeLayoutContext);
 
   $hourItems.each((index, element) => {
     const $item = $(element);
@@ -123,7 +134,7 @@ function setActiveDayCard($activeCard: JQuery<HTMLElement>): void {
  * @description Updates the pre-rendered DayCard components with real API data and attaches click events
  */
 function updateDailyUI(daily: DailyForecast[]): void {
-  const $dayCards = $(".day-card");
+  const $dayCards = $(".day-card", $activeLayoutContext);
 
   $dayCards.each((index, element) => {
     const $card = $(element);
@@ -284,14 +295,14 @@ function refreshStarState(): void {
  * @returns {void}
  */
 function renderWeatherCard(weather: WeatherData): void {
-  $("#hero-city-name").text(selectedCity.displayName);
+  $("#hero-city-name", $activeLayoutContext).text(selectedCity.displayName);
   renderLocationSubtitle();
 
   const unit = weather.current_units.temperature_2m;
-  $("#hero-temp-main").text(`${weather.current.temperature_2m}${unit}`);
-  $("#hero-feels-like").text(`${weather.current.apparent_temperature}`);
-  $("#hero-wind").text(`${weather.current.wind_speed_10m} km/h`);
-  $("#hero-humidity").text(`${weather.current.relative_humidity_2m} %`);
+  $("#hero-temp-main", $activeLayoutContext).text(`${weather.current.temperature_2m}${unit}`);
+  $("#hero-feels-like", $activeLayoutContext).text(`${weather.current.apparent_temperature}`);
+  $("#hero-wind", $activeLayoutContext).text(`${weather.current.wind_speed_10m} km/h`);
+  $("#hero-humidity", $activeLayoutContext).text(`${weather.current.relative_humidity_2m} %`);
 
   function getUvLevel(uv) {
     if (uv === null || uv === undefined) return "unknown";
@@ -316,13 +327,13 @@ function renderWeatherCard(weather: WeatherData): void {
     return `extremely poor (${aqi})`;
   }
 
-  $("#hero-uv").text(getUvLevel(weather.current.uv_index));
+  $("#hero-uv", $activeLayoutContext).text(getUvLevel(weather.current.uv_index));
 
-  $("#hero-air-quality").text(getAirQualityLevel(weather.current.european_aqi));
+  $("#hero-air-quality", $activeLayoutContext).text(getAirQualityLevel(weather.current.european_aqi));
 
-  $("#hero-uv").text(getUvLevel(weather.current.uv_index));
+  $("#hero-uv", $activeLayoutContext).text(getUvLevel(weather.current.uv_index));
 
-  $("#hero-air-quality").text(getAirQualityLevel(weather.current.european_aqi));
+  $("#hero-air-quality", $activeLayoutContext).text(getAirQualityLevel(weather.current.european_aqi));
 
   // Format Sunrise and Sunset
   const sunriseRaw = weather.daily.sunrise[0];
@@ -336,15 +347,15 @@ function renderWeatherCard(weather: WeatherData): void {
     });
   };
 
-  $("#hero-sunrise").text(formatTime(sunriseRaw));
-  $("#hero-sunset").text(formatTime(sunsetRaw));
+  $("#hero-sunrise", $activeLayoutContext).text(formatTime(sunriseRaw));
+  $("#hero-sunset", $activeLayoutContext).text(formatTime(sunsetRaw));
 
   const nowTime = new Date(weather.current.time).getTime();
   const sunriseTime = new Date(weather.daily.sunrise[0]).getTime();
   const sunsetTime = new Date(weather.daily.sunset[0]).getTime();
   const isDaytime = nowTime >= sunriseTime && nowTime < sunsetTime;
 
-  $("#top-location-name").text(selectedCity.displayName);
+  $("#top-location-name", $activeLayoutContext).text(selectedCity.displayName);
 
   const topDateString = new Date().toLocaleDateString("en-US", {
     month: "short",
@@ -355,7 +366,7 @@ function renderWeatherCard(weather: WeatherData): void {
     minute: "2-digit",
     hour12: false,
   });
-  $("#top-date-time").text(`${topDateString}, ${topTimeString}`);
+  $("#top-date-time", $activeLayoutContext).text(`${topDateString}, ${topTimeString}`);
   console.log(topTimeString);
 
   //Get the weather icon
@@ -363,18 +374,18 @@ function renderWeatherCard(weather: WeatherData): void {
     weather.current.weather_code,
     isDaytime,
   );
-  $("#hero-weather").attr("src", `/assets/weather-animated/${iconFilename}`);
+  $("#hero-weather", $activeLayoutContext).attr("src", `/assets/weather-animated/${iconFilename}`);
 
   // Get the cat mascot
   const catFilename = getWeatherCatFilename(weather.current.weather_code);
-  $("#cat-mascot").attr("src", `/assets/cats/${catFilename}`);
+  $("#cat-mascot", $activeLayoutContext).attr("src", `/assets/cats/${catFilename}`);
 
   // get hero card bg and logo
   const bgFilename = getWeatherBgFilename(weather.current.weather_code);
-  $("#hero-bg").attr("src", `/assets/bg-laptop/${bgFilename}`);
+  $("#hero-bg", $activeLayoutContext).attr("src", `/assets/bg-laptop/${bgFilename}`);
 
   const logoFilename = getWeatherLogoFilename(weather.current.weather_code);
-  $("#footer-logo").attr("src", `/assets/logo/${logoFilename}`);
+  $("#footer-logo", $activeLayoutContext).attr("src", `/assets/logo/${logoFilename}`);
 
   // bg
   const globalBgFilename = isDaytime ? "Day.svg" : "Night.svg";
@@ -384,26 +395,26 @@ function renderWeatherCard(weather: WeatherData): void {
   );
 
   const conditionText = getWeatherDescription(weather.current.weather_code);
-  $("#hero-condition").text(conditionText);
+  $("#hero-condition", $activeLayoutContext).text(conditionText);
 
   const range = getTodayMinMax(weather);
   if (range) {
-    $("#hero-temp-range").text(`${range.min}${unit} - ${range.max}${unit}`);
+    $("#hero-temp-range", $activeLayoutContext).text(`${range.min}${unit} - ${range.max}${unit}`);
   } else {
-    $("#hero-temp-range").text("—");
+    $("#hero-temp-range", $activeLayoutContext).text("—");
   }
 
   const precipProb = weather.hourly.precipitation_probability[0];
   const snowAmt = weather.hourly.snowfall[0];
 
   // rain / snow for current weather card
-  $("#hero-precipitation").text(`${precipProb}%`);
-  $("#hero-snowfall").text(`${snowAmt}mm`);
+  $("#hero-precipitation", $activeLayoutContext).text(`${precipProb}%`);
+  $("#hero-snowfall", $activeLayoutContext).text(`${snowAmt}mm`);
 
   const rain0 = weather.hourly.rain[0];
   const snow0 = weather.hourly.snowfall[0];
-  $("#hero-rain-value").text(`${rain0} ${weather.hourly_units.rain}`);
-  $("#hero-snow-value").text(`${snow0} ${weather.hourly_units.snowfall}`);
+  $("#hero-rain-value", $activeLayoutContext).text(`${rain0} ${weather.hourly_units.rain}`);
+  $("#hero-snow-value", $activeLayoutContext).text(`${snow0} ${weather.hourly_units.snowfall}`);
 
   $("#hero-status").addClass("hidden").text("");
 
@@ -522,7 +533,7 @@ function bindFavoriteDropdown(): void {
 function bindClickOutsideDropdowns(): void {
   $(document).on("click", (e) => {
     const target = e.target as Node;
-    const $searchWrap = $("#search-city-input").parent();
+    const $searchWrap = $("#search-city-input", $activeLayoutContext).parent();
     if ($searchWrap.length && !$searchWrap[0]?.contains(target)) {
       hideSearchResults();
     }
@@ -669,6 +680,7 @@ export async function initWeatherApp(): Promise<void> {
   showLoading();
 
   try {
+    getActiveLayout();
     await resolveInitialCity();
 
     renderFavoriteDropdown();
