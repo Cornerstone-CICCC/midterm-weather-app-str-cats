@@ -21,10 +21,21 @@ export { hideSearchResults };
 let searchDebounceId: ReturnType<typeof setTimeout> | undefined;
 let onCitySelected: (city: RecentSearchCity) => void = () => {};
 
+let $activeLayoutContext: JQuery<HTMLElement>;
+
+function getActiveLayout(): void {
+  if (window.matchMedia("(min-width: 768px)").matches) {
+    $activeLayoutContext = $("#desktop-layout");
+  } else {
+    $activeLayoutContext = $("#mobile-layout");
+  }
+}
+
+
 /** Record the recent search and hide the search results. */
 function selectSearchCity(city: RecentSearchCity): void {
   recordRecentFromCity(city);
-  $("#search-city-input").val("");
+  $("#search-city-input", $activeLayoutContext).val("");
   hideSearchResults();
   onCitySelected(city);
 }

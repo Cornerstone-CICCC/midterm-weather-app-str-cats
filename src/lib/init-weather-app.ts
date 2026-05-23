@@ -533,7 +533,7 @@ function bindFavoriteDropdown(): void {
 function bindClickOutsideDropdowns(): void {
   $(document).on("click", (e) => {
     const target = e.target as Node;
-    const $searchWrap = $("#search-city-input").parent();
+    const $searchWrap = $("#search-city-input", $activeLayoutContext).parent();
     if ($searchWrap.length && !$searchWrap[0]?.contains(target)) {
       hideSearchResults();
     }
