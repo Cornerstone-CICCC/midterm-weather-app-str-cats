@@ -2,6 +2,10 @@ import type { FavoriteCity } from "../types/favorite-city";
 
 const FAVORITES_STORAGE_KEY = "strcats-weather-favorites";
 
+/** Create a unique ID for a favorite city. 
+ * Used to identify a favorite city in the storage.
+ * Ids are useful for adding/removing favs
+*/
 export function createFavoriteId(latitude: number, longitude: number): string {
   return `${latitude.toFixed(5)}|${longitude.toFixed(5)}`;
 }
@@ -25,7 +29,10 @@ function parseFavorites(raw: string | null): FavoriteCity[] {
 
 /**
  * @function isFavoriteCity
- * @description Checks if the value is a valid FavoriteCity object.
+ * @description Checks if the value is a valid FavoriteCity object. 
+ * This is only used for type checking when parsing the favorites from the storage.
+ * Without this, the parsed favorites would be of type unknown. 
+ * And we would risk displaying invalid favorites to the user.
  * @param {unknown} value - The value to check.
  * @returns {boolean} True if the value is a valid FavoriteCity object, false otherwise.
  */
