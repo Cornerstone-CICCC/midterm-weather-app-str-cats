@@ -10,6 +10,11 @@ Built with Astro, Tailwind, TypeScript & jQuery.
 
 ---
 
+## Link to project
+[Weather Forecat](https://weather-forecats.netlify.app/)
+
+---
+
 ## Project Structure
 
 ```
